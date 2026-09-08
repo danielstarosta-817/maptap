@@ -1,0 +1,1044 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Maptap standings for a seven-player WhatsApp group: 920 scores across 170 daily puzzles, with a zoomable map of who is strongest in each region of the world.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20100%20100%27%3E%3Ctext%20y=%27.9em%27%20font-size=%2790%27%3E%F0%9F%97%BA%3C/text%3E%3C/svg%3E">
+<!-- these three rules are supplied by the artifact host; standalone pages need them -->
+<style>
+  html,body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<title>Maptap Standings</title>
+<script>window.jsVectorMap={addMap:function(n,d){window.__WORLD=d;}};</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsvectormap/1.5.3/maps/world.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --paper:#E9EBE3;
+    --raise:#F3F4EE;
+    --ink:#16211C;
+    --ink-2:#4A574F;
+    --ink-3:#7C8779;
+    --contour:#C7CDBC;
+    --contour-2:#DADFD1;
+    --accent:#0E6B68;
+    --accent-soft:#0e6b681f;
+    --warm:#AB5B36;
+    --gold:#A9812A;
+    --lo:#8E9B7E;
+    --key-bg:rgba(22,33,28,.055);
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#101815;
+      --raise:#18211D;
+      --ink:#E3E8DE;
+      --ink-2:#A2AFA3;
+      --ink-3:#748275;
+      --contour:#2B3831;
+      --contour-2:#222D28;
+      --accent:#54B3A8;
+      --accent-soft:#54b3a824;
+      --warm:#D9855C;
+      --gold:#D5AC4E;
+      --lo:#5E6F58;
+      --key-bg:rgba(255,255,255,.055);
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#101815; --raise:#18211D; --ink:#E3E8DE; --ink-2:#A2AFA3; --ink-3:#748275;
+    --contour:#2B3831; --contour-2:#222D28; --accent:#54B3A8; --accent-soft:#54b3a824;
+    --warm:#D9855C; --gold:#D5AC4E; --lo:#5E6F58;
+    --key-bg:rgba(255,255,255,.055); color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:"Source Serif 4",Georgia,serif; font-size:16.5px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1010px; margin:0 auto; padding:0 22px 90px;}
+
+  .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:500;
+    letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3);
+  }
+  h1,h2,h3{font-family:Archivo,"Helvetica Neue",Arial,sans-serif; text-wrap:balance; margin:0}
+  h1{font-weight:800; font-size:clamp(38px,6.4vw,64px); line-height:.98; letter-spacing:-.025em}
+  h2{font-weight:700; font-size:22px; letter-spacing:-.01em}
+  p{margin:0}
+
+  header{padding:52px 0 30px; position:relative; overflow:hidden}
+  .contours{position:absolute; inset:-40px -60px auto; height:330px; z-index:0; opacity:.5; pointer-events:none}
+  .mast{position:relative; z-index:1; display:flex; flex-direction:column; gap:16px}
+  .coords{display:flex; flex-wrap:wrap; gap:6px 20px; align-items:baseline}
+  .lede{font-size:19px; max-width:60ch; color:var(--ink-2)}
+  .lede b{color:var(--ink); font-weight:600}
+
+  section{padding-top:44px; display:flex; flex-direction:column; gap:18px}
+  .sechead{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; border-bottom:2px solid var(--ink); padding-bottom:9px}
+  .sechead .note{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-3); letter-spacing:.04em; margin-left:auto}
+
+  .strip{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); border:1px solid var(--contour); border-radius:3px; background:var(--raise); overflow:hidden}
+  .strip div{padding:14px 16px; border-right:1px solid var(--contour-2)}
+  .strip div:last-child{border-right:0}
+  .strip .n{font-family:Archivo,sans-serif; font-weight:700; font-size:30px; line-height:1.05; letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+  .strip .k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3); margin-top:5px}
+  .strip .n.hi{color:var(--accent)}
+
+  .scroller{overflow-x:auto; -webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse; width:100%; min-width:760px; font-variant-numeric:tabular-nums}
+  thead th{
+    font-family:"IBM Plex Mono",monospace; font-weight:500; font-size:10.5px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--ink-3); text-align:right; padding:0 10px 8px;
+    border-bottom:1px solid var(--contour); white-space:nowrap; vertical-align:bottom;
+  }
+  thead th:first-child,thead th.l{text-align:left}
+  tbody td{padding:9px 10px; border-bottom:1px solid var(--contour-2); text-align:right; font-family:"IBM Plex Mono",monospace; font-size:14px}
+  tbody td:first-child{text-align:left; font-family:Archivo,sans-serif; font-weight:600; font-size:15.5px; letter-spacing:-.005em}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr.me{background:var(--accent-soft)}
+  tbody tr.me td:first-child{color:var(--accent); box-shadow:inset 3px 0 0 var(--accent)}
+  td.key,th.key{background:var(--key-bg)}
+  td.key{color:var(--ink); font-weight:600}
+  td.kw{font-family:Archivo,sans-serif !important; font-weight:700; font-size:17px}
+  th.key{color:var(--ink-2)}
+  td.wins{font-family:Archivo,sans-serif !important; font-weight:700; font-size:17px}
+  .pos{color:var(--ink-3); font-family:"IBM Plex Mono",monospace !important; font-weight:500 !important; font-size:11.5px !important; width:26px}
+  .tie{color:var(--ink-3); font-size:11.5px}
+  .dim{color:var(--ink-3)}
+  .bar{display:flex; align-items:center; gap:9px; justify-content:flex-end}
+  .bar i{display:block; height:7px; border-radius:1px; background:var(--accent); flex:none}
+  .bar span{min-width:52px; text-align:right}
+
+  /* ---------- player picker ---------- */
+  .picker{display:flex; flex-wrap:wrap; gap:8px}
+  .picker button{
+    font:inherit; cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+    background:var(--raise); color:var(--ink); border:1px solid var(--contour);
+    border-radius:100px; padding:7px 15px 7px 11px; transition:border-color .15s, background .15s;
+    font-family:Archivo,sans-serif; font-weight:600; font-size:14px; letter-spacing:-.01em;
+  }
+  .picker button .dot{width:11px; height:11px; border-radius:50%; flex:none; background:var(--o-none)}
+  .picker button:hover{border-color:var(--ink-3)}
+  .picker button[aria-pressed="true"]{border-color:var(--ink); background:var(--paper); box-shadow:inset 0 0 0 1px var(--ink)}
+  .picker button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  #focusnote{min-height:1.2em}
+  #focusstrip{grid-template-columns:repeat(4,1fr)}
+  #focusstrip div:nth-child(n+5){border-bottom:0}
+  #focusstrip div{border-bottom:1px solid var(--contour-2)}
+  #focusstrip div:nth-child(4n){border-right:0}
+  @media (max-width:640px){
+    #focusstrip{grid-template-columns:repeat(2,1fr)}
+    #focusstrip div:nth-child(n+5){border-bottom:1px solid var(--contour-2)}
+    #focusstrip div:nth-child(2n){border-right:0}
+  }
+
+  .chartctl{display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center; justify-content:space-between; margin-bottom:12px}
+  .toggles{display:flex; flex-wrap:wrap; gap:6px}
+  .toggles button{
+    font:inherit; cursor:pointer; display:inline-flex; align-items:center; gap:7px;
+    background:transparent; border:1px solid var(--contour); border-radius:100px;
+    padding:5px 12px 5px 9px; color:var(--ink-3);
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.02em;
+  }
+  .toggles button .ln{width:14px; height:0; border-top:2px solid currentColor; flex:none; opacity:.35}
+  .toggles button[aria-pressed="true"]{color:var(--ink); border-color:var(--ink-3)}
+  .toggles button[aria-pressed="true"] .ln{opacity:1}
+  .toggles button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  .seg{display:inline-flex; border:1px solid var(--contour); border-radius:100px; overflow:hidden; background:var(--paper)}
+  .seg button{
+    font:inherit; cursor:pointer; background:transparent; border:0; padding:6px 14px;
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-3);
+  }
+  .seg button.on{background:var(--ink); color:var(--paper)}
+  .seg button:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+  .readout{
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-2);
+    border-top:1px solid var(--contour-2); border-bottom:1px solid var(--contour-2);
+    padding:8px 2px; margin-bottom:10px; display:flex; flex-wrap:wrap; gap:4px 16px; min-height:32px; align-items:center;
+  }
+  .readout .rd{display:inline-flex; align-items:center; gap:6px}
+  .readout .rd i{width:8px; height:8px; border-radius:2px; display:block}
+  .readout .rdate{font-weight:600; color:var(--ink); letter-spacing:.06em; text-transform:uppercase}
+  .readout .rwin{color:var(--gold)}
+  tbody tr.focus{background:var(--accent-soft)}
+  tbody tr.focus td:first-child{color:var(--accent); box-shadow:inset 3px 0 0 var(--accent)}
+
+  .chartcard{border:1px solid var(--contour); border-radius:3px; background:var(--raise); padding:18px 16px 12px}
+  .legend{display:flex; flex-wrap:wrap; gap:8px 20px; font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-2); margin-bottom:12px}
+  .legend b{display:inline-flex; align-items:center; gap:7px; font-weight:400}
+  .swatch{width:16px; height:0; border-top:2px solid var(--accent)}
+  .swatch.f{border-top:2px dashed var(--ink-3)}
+  .swatch.dot{width:9px; height:9px; border:0; border-radius:50%; background:var(--gold)}
+
+  .wins-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(196px,1fr)); gap:1px; background:var(--contour-2); border:1px solid var(--contour); border-radius:3px}
+  .wins-list li{list-style:none; background:var(--raise); padding:12px 14px}
+  .wins-list .d{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3)}
+  .wins-list .s{font-family:Archivo,sans-serif; font-weight:700; font-size:25px; letter-spacing:-.02em; font-variant-numeric:tabular-nums; margin-top:2px}
+  .wins-list .m{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-2); margin-top:3px}
+  .wins-list .m em{color:var(--warm); font-style:normal}
+  ul{margin:0; padding:0}
+
+  /* regional delta cells */
+  #regtable{min-width:800px}
+  #regtable tbody td:first-child{font-size:14.5px}
+  td.delta{font-weight:600}
+  td.delta.up{color:var(--accent)}
+  td.delta.dn{color:var(--warm)}
+  td.delta.big{background:var(--accent-soft)}
+  td.delta.bigdn{background:#ab5b361c}
+  :root:not([data-theme="light"]) td.delta.bigdn{background:#d9855c22}
+  :root[data-theme="dark"] td.delta.bigdn{background:#d9855c22}
+  td.delta.na{color:var(--contour)}
+  .diffbar{display:flex; align-items:center; gap:8px; justify-content:flex-end}
+  .diffbar i{display:block; height:6px; border-radius:1px; flex:none; background:var(--lo)}
+  .own{display:flex; align-items:baseline; gap:8px}
+  .own .who{font-family:Archivo,sans-serif; font-weight:700; font-size:17px; letter-spacing:-.01em}
+  .own .sc{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-2)}
+  .wins-list .c{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3)}
+  .wins-list .r2{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-3); margin-top:4px}
+
+  /* ---------- territory map ---------- */
+  :root{
+    --o-gabe:#0E6B68; --o-brian:#B0603A; --o-drew:#A9812A; --o-zach:#48688A;
+    --o-luke:#6C8845; --o-brett:#7C5570; --o-danny:#AE4E68; --o-none:#C7CDBC;
+    --sea:#EFF1EA; --hair:#E9EBE3;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --o-gabe:#4FAEA4; --o-brian:#CF7E56; --o-drew:#C7A046; --o-zach:#7BA1C0;
+      --o-luke:#93AF64; --o-brett:#AE82A0; --o-danny:#C9738C; --o-none:#2E3B34;
+      --sea:#141D19; --hair:#101815;
+    }
+  }
+  :root[data-theme="dark"]{
+    --o-gabe:#4FAEA4; --o-brian:#CF7E56; --o-drew:#C7A046; --o-zach:#7BA1C0;
+    --o-luke:#93AF64; --o-brett:#AE82A0; --o-danny:#C9738C; --o-none:#2E3B34;
+    --sea:#141D19; --hair:#101815;
+  }
+  .mapctl{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between}
+  .zpresets{flex-wrap:wrap}
+  .zbtns{display:inline-flex; gap:6px}
+  .zbtns button{
+    font:inherit; cursor:pointer; width:34px; height:30px; line-height:1;
+    background:var(--raise); color:var(--ink); border:1px solid var(--contour); border-radius:6px;
+    font-family:"IBM Plex Mono",monospace; font-size:15px;
+  }
+  .zbtns button:hover{border-color:var(--ink-3)}
+  .zbtns button:focus-visible,.zpresets button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  #worldmap svg{width:100%; height:clamp(300px,49vw,470px); cursor:grab; touch-action:none; display:block}
+  #worldmap svg.grabbing{cursor:grabbing}
+  #worldmap svg text{pointer-events:none; user-select:none}
+  .mapcard{border:1px solid var(--contour); border-radius:3px; background:var(--sea); padding:0; overflow:hidden}
+  .mapcard svg{display:block; width:100%; height:auto}
+  .mapcard .cap{padding:9px 14px 11px; border-top:1px solid var(--contour);
+    font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-3); letter-spacing:.04em; background:var(--raise)}
+  .maplegend{display:flex; flex-wrap:wrap; gap:8px}
+  .maplegend b{display:inline-flex; align-items:center; gap:8px; font-weight:400;
+    border:1px solid var(--contour); border-radius:100px; padding:5px 12px 5px 8px; background:var(--raise)}
+  .maplegend .sw{width:13px; height:13px; border-radius:3px; flex:none}
+  .maplegend .nm{font-family:Archivo,sans-serif; font-weight:700; font-size:13.5px; letter-spacing:-.01em}
+  .maplegend .ct{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-3)}
+  .maplegend b.zero{opacity:.55}
+  /* ---------- posting-time bars ---------- */
+  .tbars{display:flex; flex-direction:column; gap:11px}
+  .tbrow{display:grid; grid-template-columns:96px 1fr auto; align-items:center; gap:12px}
+  .tbrow .lb{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-2); text-align:right}
+  .tbrow .tk{position:relative; height:22px; background:var(--contour-2); border-radius:2px; overflow:hidden}
+  .tbrow .tk i{position:absolute; inset:0 auto 0 0; background:var(--lo); border-radius:2px}
+  .tbrow.top .tk i{background:var(--accent)}
+  .tbrow .tk b{position:absolute; left:9px; top:0; line-height:22px; font-family:"IBM Plex Mono",monospace;
+    font-size:11px; font-weight:600; color:var(--paper)}
+  .tbrow .rt{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-3); white-space:nowrap}
+  .tbrow .rt em{font-style:normal; color:var(--warm)}
+  .tbrow .rt s{text-decoration:none; color:var(--accent)}
+  .mapfail{padding:26px 16px; font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-3); text-align:center}
+  #regionrows td.owner{font-family:Archivo,sans-serif !important; font-weight:700; font-size:14.5px}
+  #regionrows td.owner span{display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:7px}
+  #regionrows tr.thin td{opacity:.62}
+
+  table.h2h{min-width:640px}
+  table.h2h td{font-size:13px}
+  table.h2h td.self{color:var(--contour)}
+  table.h2h td.up{color:var(--accent); font-weight:600}
+  table.h2h td.dn{color:var(--warm)}
+
+  .quote{
+    border-left:2px solid var(--gold); padding:2px 0 2px 18px; max-width:56ch;
+    font-size:19px; font-style:italic; color:var(--ink-2);
+  }
+  .quote cite{display:block; font-style:normal; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3); margin-top:9px}
+
+  .method{font-size:14.5px; color:var(--ink-2); max-width:70ch; display:flex; flex-direction:column; gap:8px}
+  .method b{color:var(--ink); font-weight:600}
+
+  @media (max-width:560px){
+    header{padding-top:34px}
+    .strip div{border-right:0; border-bottom:1px solid var(--contour-2)}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    .grow{animation:grow .7s cubic-bezier(.2,.7,.2,1) both}
+    @keyframes grow{from{transform:scaleX(.12); opacity:.4} to{transform:scaleX(1); opacity:1}}
+    .bar i{transform-origin:right center}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <svg class="contours" viewBox="0 0 1100 330" preserveAspectRatio="xMidYMin slice" aria-hidden="true" fill="none">
+    <g stroke="var(--contour)" stroke-width="1">
+      <path d="M-40 240 C 130 196, 250 268, 400 224 C 545 182, 660 250, 800 206 C 930 166, 1030 226, 1140 190"/>
+      <path d="M-40 202 C 140 158, 258 228, 408 184 C 552 143, 668 210, 806 168 C 934 128, 1032 186, 1140 152"/>
+      <path d="M-40 166 C 148 122, 266 190, 414 148 C 558 106, 674 172, 812 130 C 938 92, 1034 148, 1140 116"/>
+      <path d="M-40 128 C 156 86, 274 152, 420 110 C 564 70, 680 134, 818 94 C 942 56, 1036 110, 1140 80"/>
+      <path d="M-40 92 C 164 50, 282 114, 426 74 C 570 34, 686 96, 824 58 C 946 22, 1038 74, 1140 46"/>
+      <path d="M-40 56 C 172 16, 290 78, 432 38 C 576 0, 692 60, 830 24"/>
+    </g>
+    <circle cx="822" cy="130" r="3.4" fill="var(--accent)"/>
+    <path d="M822 130 v-64 M790 66 h64" stroke="var(--accent)" stroke-width="1" fill="none"/>
+  </svg>
+
+  <div class="mast">
+    <div class="coords">
+      <span class="eyebrow">maptap.gg &nbsp;&#183;&nbsp; 170 daily puzzles</span>
+      <span class="eyebrow">23 Mar 2026 &rarr; 08 Sep 2026</span>
+      <span class="eyebrow">920 scores &middot; 830 rounds placed</span>
+    </div>
+    <h1>Maptap Standings</h1>
+    <p class="lede">Every score anyone posted to the group since day one, recounted from the chat, with each round matched to the place it was actually asking for. <b>Pick a name and the whole page follows you.</b></p>
+  </div>
+</header>
+
+<section>
+  <div class="sechead"><h2>Pick a player</h2><span class="note">highlights every table below</span></div>
+  <p class="lede" style="font-size:17px;margin-bottom:2px">Click a name and it stays selected: their row lights up in every table on this page, and their line thickens in the chart below. Click <b>Everyone</b> to clear it.</p>
+  <div class="picker" id="picker">
+    <button type="button" data-p="__all" aria-pressed="true"><span class="dot"></span>Everyone</button>
+    <button type="button" data-p="Brian" aria-pressed="false"><span class="dot" style="background:var(--o-brian)"></span>Brian</button>
+    <button type="button" data-p="Gabe" aria-pressed="false"><span class="dot" style="background:var(--o-gabe)"></span>Gabe</button>
+    <button type="button" data-p="Drew" aria-pressed="false"><span class="dot" style="background:var(--o-drew)"></span>Drew</button>
+    <button type="button" data-p="Zach" aria-pressed="false"><span class="dot" style="background:var(--o-zach)"></span>Zach</button>
+    <button type="button" data-p="Brett" aria-pressed="false"><span class="dot" style="background:var(--o-brett)"></span>Brett</button>
+    <button type="button" data-p="Luke" aria-pressed="false"><span class="dot" style="background:var(--o-luke)"></span>Luke</button>
+    <button type="button" data-p="Danny" aria-pressed="false"><span class="dot" style="background:var(--o-danny)"></span>Danny</button>
+  </div>
+  <div class="strip" id="focusstrip" hidden></div>
+  <p class="method" id="focusnote" hidden></p>
+</section>
+
+<section>
+  <div class="sechead"><h2>All time</h2><span class="note">Mar 23 &#8211; Sep 8 &#183; ranked by wins</span></div>
+  <div class="scroller">
+    <table>
+      <thead>
+        <tr>
+          <th colspan="2" class="l">Player</th>
+          <th class="key">Total&nbsp;wins*</th><th class="key">Total&nbsp;100s</th><th class="key">Average&nbsp;score</th>
+          <th>Played</th><th>Win&nbsp;rate</th><th>Top&nbsp;3</th><th>950+</th><th>Sub&nbsp;800</th>
+          <th>Best</th><th>Worst</th>
+        </tr>
+      </thead>
+      <tbody id="allrows"></tbody>
+    </table>
+  </div>
+  <p class="method"><span>*A win goes to the highest <b>Final score</b> of the day; on a tie, everyone at the top gets one &#8212; same rule as the July table. Brian has 4 shared wins, Gabe 4, Drew 2, Zach 2, Brett 1.</span></p>
+</section>
+
+<section>
+  <div class="sechead"><h2>Every day, everyone</h2><span class="note">170 puzzles &#183; click a name to show or hide it</span></div>
+  <div class="chartcard">
+    <div class="chartctl">
+      <div class="toggles" id="toggles"></div>
+      <div class="seg" id="modes">
+        <button type="button" data-mode="roll" class="on">7-day average</button>
+        <button type="button" data-mode="day">Every day</button>
+      </div>
+    </div>
+    <div class="readout" id="readout">Hover the chart for a single day.</div>
+    <div class="scroller"><div id="chart" style="min-width:700px"></div></div>
+  </div>
+  <p class="method"><span>A 7-day rolling average by default &#8212; daily scores swing 300 points and seven raw lines are unreadable. Switch to <b>Every day</b> for the real thing, gaps and all. <b>Day's best</b> is the winning score each day, so the distance from your line to the dashed one is what it would have taken to win.</span></p>
+</section>
+
+
+<section>
+  <div class="sechead"><h2>Head to head</h2><span class="note">days both played &#183; row's record</span></div>
+  <div class="scroller">
+    <table class="h2h">
+      <thead><tr><th class="l">&nbsp;</th><th>Brian</th><th>Gabe</th><th>Drew</th><th>Zach</th><th>Brett</th><th>Luke</th><th>Danny</th></tr></thead>
+      <tbody id="h2hrows"></tbody>
+    </table>
+  </div>
+  <p class="method"><span>Read across a row for that player's record against each rival. <b>Gabe leads everyone except Brian</b>, who is 93&#8211;74 up on him. The most lopsided pairing on the board is Gabe over Brett, 122&#8211;41; the closest is Brett against Luke at 51&#8211;44. Danny's counts are small &#8212; he has only met each of them 27 times at most.</span></p>
+</section>
+
+<section>
+  <div class="sechead"><h2>Round 5 is the assassin</h2><span class="note">mean accuracy by round position</span></div>
+  <div class="chartcard">
+    <div class="scroller"><div id="rounds" style="min-width:560px"></div></div>
+  </div>
+  <p class="method"><span>MapTap sequences each day easy&nbsp;&rarr;&nbsp;hard, and it is not subtle: the global field drops <b>20 points</b> from round 1 to round 5. This group is 4&#8211;9 points above the world on every round, and the whole competition is decided in the last two.</span></p>
+</section>
+
+<section>
+  <div class="sechead"><h2>Who is strong where</h2><span class="note">772 rounds &#183; points vs own average</span></div>
+  <div class="scroller">
+    <table id="regtable">
+      <thead>
+        <tr><th class="l">Region</th><th>Rounds</th><th>Group&nbsp;avg</th>
+        <th>Brian</th><th>Gabe</th><th>Drew</th><th>Zach</th><th>Brett</th><th>Luke</th><th>Danny</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="method"><span>Each cell is that player's mean accuracy in the region <b>minus their own overall mean</b>, so it shows relative strength rather than who is simply better. Blank means fewer than 6 rounds. Everyone is above their own baseline in Europe and North America and below it everywhere south of the Sahara &#8212; but the size of the drop is where the group separates.</span></p>
+</section>
+
+<section>
+  <div class="sechead"><h2>Two ways to be good</h2><span class="note">opening rounds vs closing rounds</span></div>
+  <p class="lede" style="font-size:17px">Every day is graded easy to hard, so there are two separate skills here &#8212; and the top two players have opposite ones. <b>Brian is the best in the group on rounds 1 and 2</b> and loses 10.9 points by rounds 4 and 5. <b>Gabe is only fourth on the openers</b> but the best in the group on the closers, and he sheds the least on the way down. That is the entire difference between winning the most days and having the best season average.</p>
+  <div class="scroller">
+    <table style="min-width:700px">
+      <thead><tr><th colspan="2" class="l">Player</th><th>Rounds&nbsp;1&#8211;2</th><th>Rounds&nbsp;4&#8211;5</th><th>Drop</th><th>Round&nbsp;5&nbsp;only</th><th>40&nbsp;hardest&nbsp;rounds</th><th>Counted</th></tr></thead>
+      <tbody id="hardrows"></tbody>
+    </table>
+  </div>
+  <p class="method"><span>Sorted by the closing rounds, where the days are actually decided. Zach has the group's steepest fall-off (12.5) and the worst round 5 (79.7), which is why he sits fourth on wins despite the second-most perfect rounds all year.</span></p>
+</section>
+
+
+<section>
+  <div class="sechead"><h2>Who owns what</h2><span class="note">best mean accuracy, countries seen 8+ times</span></div>
+  <ul class="wins-list" id="ownlog"></ul>
+  <p class="method"><span><b>Gabe</b> takes 8 of the 19, including Russia &#8212; the single worst country in the game for this group (78.8 across 17 rounds). <b>Brian</b> owns the United States outright at 98.2 over 160 rounds, which is most of his win margin. <b>Luke</b> called it in May: he does have an advantage in Southeast Asia (+4.1 vs his own average, the only positive in the group), plus Australia, Egypt and Ukraine.</span></p>
+</section>
+
+<section>
+  <div class="sechead"><h2>The territory map</h2><span class="note">30 regions &#183; 818 rounds placed</span></div>
+  <div class="maplegend" id="maplegend"></div>
+  <div class="mapctl">
+    <div class="seg zpresets" id="zpresets">
+      <button type="button" data-vb="0,0,900" class="on">World</button>
+      <button type="button" data-vb="-20,52,400">N. America</button>
+      <button type="button" data-vb="80,249,390">S. America</button>
+      <button type="button" data-vb="353,89,250">Europe</button>
+      <button type="button" data-vb="255,184,400">Africa</button>
+      <button type="button" data-vb="449,99,440">Asia</button>
+      <button type="button" data-vb="652,276,280">Oceania</button>
+    </div>
+    <div class="zbtns">
+      <button type="button" id="zout" aria-label="Zoom out">&minus;</button>
+      <button type="button" id="zin" aria-label="Zoom in">+</button>
+    </div>
+  </div>
+  <div class="mapcard">
+    <div id="worldmap"><div class="mapfail">Loading map&#8230;</div></div>
+    <div class="cap">Shaded for whoever has the highest mean accuracy in that region; grey never came up. <b>Drag to pan, double-click or use +/&minus; to zoom</b>, jump to a continent above, or hold &#8984;/Ctrl and scroll. Region names appear as you zoom in.</div>
+  </div>
+  <p class="lede" style="font-size:17px"><b>Gabe holds 13 of the 30 regions</b> &#8212; the whole Mediterranean, all four slices of Africa, both halves of South America, Russia and China. <b>Brian holds 8</b>, but they are the big, frequently-visited ones: North America, Japan and Korea, South Asia, Southeast Asia. Drew has the north &#8212; the British Isles, the Nordics, the Baltics and the Balkans. <b>Danny holds none yet.</b></p>
+  <div class="scroller">
+    <table style="min-width:660px">
+      <thead><tr><th class="l">Region</th><th>Rounds</th><th>Group&nbsp;avg</th><th class="l" style="padding-left:20px">Best</th><th>Avg</th><th class="l" style="padding-left:16px">Runner-up</th><th>Avg</th></tr></thead>
+      <tbody id="regionrows"></tbody>
+    </table>
+  </div>
+  <p class="method"><span>To hold a region you have to have played at least 60% of its rounds, so nobody wins one on a lucky handful. Faded rows have fewer than 12 rounds and are the least settled &#8212; <b>China &amp; Mongolia is the closest call on the board</b>: Gabe 87.53, Drew 87.46, Brian 87.44 across 32 rounds. Luke and Brian tie exactly on Ukraine &amp; Moldova at 94.6, and Brian takes it on twice the sample.</span></p>
+</section>
+
+
+<section>
+  <div class="sechead"><h2>Does going late help?</h2><span class="note">909 scores posted on the day</span></div>
+  <p class="lede" style="font-size:17px">The theory in the chat is that whoever plays after dinner &#8212; or just not at 7am before coffee &#8212; has the advantage. <b>It isn't true.</b> Across 909 same-day posts the correlation between posting time and score is <b>&minus;0.006</b>: nothing. Five of the seven players score slightly worse on their own later days, and the highest win rate in the group belongs to the people posting <b>before 7am</b>.</p>
+  <div class="chartcard">
+    <div class="tbars" id="tbars"></div>
+  </div>
+  <div class="scroller">
+    <table style="min-width:680px">
+      <thead><tr><th colspan="2" class="l">Player</th><th>Median&nbsp;post</th><th>Before&nbsp;9am</th><th>Own early half</th><th>Own late half</th><th>Late &minus; early</th></tr></thead>
+      <tbody id="clockrows"></tbody>
+    </table>
+  </div>
+  <p class="method"><span>Each player's own scores split at their own median posting time, so this compares them only against themselves. <b>Only Zach is better late.</b> The obvious caveat: the timestamp is when the score was <i>posted</i>, not when it was played, and the two late buckets hold just 33 and 23 posts between everyone. But there is no signal here at all, and the group's 2&#8211;6pm window is the worst on the board.</span></p>
+</section>
+
+<section>
+  <div class="sechead"><h2>Loose ends</h2></div>
+  <p class="quote">100s are overrated, highest average score is what we're all going for obviously.<cite>Gabe Starosta &#183; 22 Jul, 5:23 PM</cite></p>
+  <div class="method" style="margin-top:6px">
+    <span><b>Highest score ever posted:</b> Brian, 998 on 4 Aug. Nobody has cracked 1000 &#8212; Brian replayed 10 Apr in a second browser and still only got 995.</span>
+    <span><b>Hardest puzzle:</b> 11 May, group average 699. <b>Easiest:</b> 28 May, group average 980.</span>
+    <span><b>Longest win streak:</b> Gabe, 5 days. Brian 4, Zach 3, Drew and Danny 2, Brett and Luke 1.</span>
+    <span><b>Most 100s per round:</b> Brian, on 32% of all rounds he has played, and 270 in total &#8212; more than Gabe and Drew combined. Gabe still has the better average, which is Gabe's own point above.</span>
+    <span><b>Worst country in the game:</b> Russia, 78.8 across 17 rounds. Gabe is the least bad at 82.1. <b>Best:</b> Ireland 98.8, Netherlands 98.6, Portugal 98.5 &#8212; the group does not miss in Western Europe.</span>
+    <span><b>Gabe's Vladivostok complaint checks out.</b> It was round 5 on 19 August, less than three weeks before he flagged the repeat on 7 September. Danny scored 58 on it.</span>
+  </div>
+</section>
+
+
+</div>
+
+<script>
+const ALL=[
+ {p:"Brian",w:62,tie:4,gp:169,h:270,pod:130,g950:61,s800:15,best:998,worst:587,avg:909.1},
+ {p:"Gabe", w:47,tie:4,gp:169,h:107,pod:125,g950:54,s800:10,best:994,worst:691,avg:914.0},
+ {p:"Drew", w:24,tie:2,gp:130,h:103,pod:72, g950:34,s800:11,best:994,worst:700,avg:898.5},
+ {p:"Zach", w:21,tie:2,gp:161,h:164,pod:83, g950:38,s800:24,best:993,worst:624,avg:885.7},
+ {p:"Luke", w:9, tie:0,gp:100,h:109,pod:27, g950:17,s800:16,best:996,worst:630,avg:876.4},
+ {p:"Brett",w:7, tie:1,gp:164,h:76, pod:63, g950:21,s800:19,best:982,worst:674,avg:884.4},
+ {p:"Danny",w:7, tie:0,gp:27, h:11, pod:14, g950:7, s800:4, best:976,worst:696,avg:897.7}
+];
+const ERA=[
+ {p:"Drew", avg:936.0,w:4,gp:14,h:18,l14:921.9,l14n:7},
+ {p:"Gabe", avg:933.8,w:7,gp:27,h:23,l14:928.0,l14n:14},
+ {p:"Brian",avg:912.9,w:4,gp:27,h:47,l14:906.5,l14n:14},
+ {p:"Danny",avg:897.7,w:7,gp:27,h:11,l14:921.0,l14n:14},
+ {p:"Brett",avg:893.6,w:0,gp:27,h:18,l14:883.5,l14n:14},
+ {p:"Zach", avg:881.7,w:3,gp:26,h:30,l14:861.8,l14n:13},
+ {p:"Luke", avg:871.3,w:3,gp:27,h:28,l14:875.1,l14n:14}
+];
+const H2H={
+ Brian:{Gabe:[93,74],Drew:[76,51],Zach:[113,46],Brett:[116,46],Luke:[74,26],Danny:[14,13]},
+ Gabe:{Brian:[74,93],Drew:[75,52],Zach:[102,56],Brett:[122,41],Luke:[75,24],Danny:[16,11]},
+ Drew:{Brian:[51,76],Gabe:[52,75],Zach:[68,53],Brett:[79,48],Luke:[49,23],Danny:[8,6]},
+ Zach:{Brian:[46,113],Gabe:[56,102],Drew:[53,68],Brett:[90,67],Luke:[56,37],Danny:[12,13]},
+ Brett:{Brian:[46,116],Gabe:[41,122],Drew:[48,79],Zach:[67,90],Luke:[51,44],Danny:[12,15]},
+ Luke:{Brian:[26,74],Gabe:[24,75],Drew:[23,49],Zach:[37,56],Brett:[44,51],Danny:[11,16]},
+ Danny:{Brian:[13,14],Gabe:[11,16],Drew:[6,8],Zach:[13,12],Brett:[15,12],Luke:[16,11]}
+};
+const ORDER=["Brian","Gabe","Drew","Zach","Brett","Luke","Danny"];
+// Daily finals, 23 Mar to 8 Sep 2026. 170 days, 3 digits each, 000 = did not play.
+const RAW={
+Brian:"000969938940974779587954867993919954862824966953992869986934921876911887890945950943908875861958874742872668960959979799970876911788953839865939946613993985928964975981982919893952660958955955907871984807953913890984972964933947967984931962933965957889976940935929920818882932897945931688996937955929877892947871973685819985866979858694924888987962930931952695655991930983865959988935930996884745888941998931913920986949888880964919876937956903926889962830927939940954891924954982924959856872980699856991879924",
+Gabe:"000967889872837841816972769973867955870856928932951827968948877904893885885942877927907949890896846754917950793918982792833968951958975929888913946814967963886975959983966903956909691955969931918763982805963978966963963922929955781985927960969959952964980940972880965928902963943934782820843903926881910946941864909852924891858918926790790912983975886891947951932931901934870994869902967941815987840908928804935887906947934948939908925990968891852987961948961926923980928935951910902923921864983907922964931951",
+Drew:"855883913785913795700906751958870886807770906000000925000000940882936837941914929930844000809917815951000804779914979802000875947886943000906910000000980985000000977971962910869816744000943937922000000761913974886960817915919884919971928975960886891957984718000816936803953894968919824808000903875932873887733000000985860000827000000916837857988000889968000829844994942957839968000906909911865960799000983922958000971964923948810900980000977000000000000958964903000969000912976000934931000931000834000000000935",
+Zach:"000936874919920765785974673982876889879943920874965909950875895865858933801946923963793874893949867739704872703937975752818833938810960824791955866695980921875974944977970892863920686970962924927910993706917966861965954913901778852984958974890884926952964940918881966892654926000909000826938845916816710000899952947955000939885939834711624000956928000891907703954978977967764928897869926948900942846845980736000856917883875873936950835902979825905728953900935898931980747901957765911913832862955865758000805932",
+Brett:"000914883878894857773913778937812934781765925000957883948748000848883809806935900916826773872902791758743916796959947878000901911809970855889970914674951945926948919956976899917906821946941916858860968785843947898954809920918923907932926927968900915966951916954864915881861858886857870853878915845791830000924874909693802925868899894871783905982000848834919761836958919949851933878915853922818876868819915797931898969952927867832937832976938799855844951901958890906971906914938848866849903890923870890916731925",
+Luke:"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000755951796951768869972749874950816960945917915943885988930903958887933938929879958000928881802971893000000630903902907878795853706910896846803948699916801000000865000879888000981646903996896849000919961837881925927880863000000804974870918824800854788842967927974799812752833895885786869931947910978869913978836777923863868717743930",
+Danny:"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000696745829943963882792830893935960949927914955926954947939896785927835976972912956",
+Best:"855969938940974857816974867993919955879943966953992925986948940904936933941946950963908949893958874951917950960959982878970968951958975929906970946814993985928975977983982919956952821970969955927910993807963978966984972964933955967988958975969965957966984940972929966928953971968945931853996937955932910946947952973985924985885979926916924912988975930968981951954996977983870994988935967996927987888941998931974920986964934948964950980990979963926987962958964960949980947955978982947978921931983907976991931956"};
+const NDAYS=170, DAY0=new Date(2026,2,23);
+const SERIES={}; Object.entries(RAW).forEach(([k,s])=>{
+  SERIES[k]=Array.from({length:NDAYS},(_,i)=>{const v=+s.slice(i*3,i*3+3); return v?v:null;});
+});
+const STREAK={Brian:4,Gabe:5,Drew:2,Zach:3,Brett:1,Luke:1,Danny:2};
+// posting time: label, posts, score delta vs own average, win rate %
+const TIMING=[["Before 7am",60,-2.7,25.0],["7\u20139am",418,2.2,20.6],["9\u201311am",312,-1.2,17.0],
+ ["11am\u20132pm",63,-1.8,22.2],["2\u20136pm",33,-14.2,12.1],["After 6pm",23,2.6,13.0]];
+// player, median post time, % of posts before 9am, own early half avg, own late half avg
+const CLOCK=[["Brian","07:42",85,910.5,907.8],["Drew","07:59",66,899.3,897.7],["Brett","08:18",73,888.1,880.8],
+ ["Gabe","09:18",30,914.8,913.3],["Zach","09:31",39,883.6,887.8],["Luke","10:37",13,875.2,874.7],
+ ["Danny","11:41",22,901.5,894.2]];
+
+// region, rounds, group mean, deltas vs each player's own overall mean (null = fewer than 6 rounds)
+const REG=[
+ ["North America",193,96.2,[4.4,2.9,4.0,4.8,4.7,5.5,-0.3]],
+ ["Western &amp; Southern Europe",170,96.3,[3.3,4.0,5.3,4.8,4.6,4.4,5.1]],
+ ["Central America &amp; Caribbean",21,96.0,[4.3,3.6,0.7,4.9,5.3,6.9,null]],
+ ["Middle East &amp; North Africa",52,93.7,[1.9,0.3,1.2,3.1,2.7,1.1,null]],
+ ["East Asia",70,91.5,[-0.4,-1.2,-0.8,-0.6,0.1,1.9,-3.3]],
+ ["Southeast Asia",28,89.8,[-1.2,-2.5,-3.0,-3.4,-4.0,4.1,null]],
+ ["South Asia",37,88.8,[-1.1,-1.0,-4.1,-5.4,-4.4,-3.2,-1.4]],
+ ["Eastern Europe &amp; Russia",49,88.1,[-4.3,-2.4,-5.0,-3.5,-4.8,-2.9,-2.1]],
+ ["South America",46,86.0,[-6.2,-3.0,-6.2,-5.6,-6.5,-10.4,null]],
+ ["Central Asia",7,84.0,[-7.8,-13.4,-11.2,-5.9,-8.6,-2.3,null]],
+ ["Sub-Saharan Africa",68,82.4,[-9.3,-5.0,-9.9,-10.7,-9.1,-17.1,-2.9]],
+ ["Oceania",30,81.0,[-8.0,-13.7,-10.2,-12.9,-13.2,-6.5,null]]
+];
+const ROUNDPOS={global:[93.9,91.9,86.9,82.8,73.8], ours:[97.4,96.0,93.1,89.6,82.6]};
+// player, 40-hardest-rounds avg, rounds counted, rounds 1-2 avg, rounds 4-5 avg, round 5 avg
+const HARD=[
+ {p:"Brian",v:61.8,n:40,e:98.1,h:87.2,r5:83.0},{p:"Gabe", v:73.7,n:40,e:96.8,h:88.6,r5:85.6},
+ {p:"Drew", v:70.3,n:32,e:96.7,h:86.4,r5:82.7},{p:"Zach", v:58.6,n:37,e:96.9,h:84.4,r5:79.7},
+ {p:"Brett",v:69.2,n:39,e:96.0,h:84.9,r5:82.1},{p:"Luke", v:63.6,n:19,e:95.5,h:83.8,r5:81.3},
+ {p:"Danny",v:82.3,n:3, e:94.6,h:87.4,r5:85.4}
+];
+const OWN=[
+ ["United States",160,"Brian",98.2,"Luke",97.0],["United Kingdom",28,"Drew",98.4,"Brian",97.9],
+ ["Japan",27,"Brian",96.7,"Luke",94.4],["China",27,"Brian",90.0,"Drew",88.2],
+ ["France",22,"Gabe",97.1,"Luke",95.6],["Germany",19,"Gabe",96.9,"Brian",95.8],
+ ["Canada",18,"Drew",96.1,"Brian",95.1],["India",18,"Gabe",92.3,"Brian",90.7],
+ ["Russia",17,"Gabe",82.1,"Brett",79.2],["Italy",16,"Gabe",98.9,"Brian",97.6],
+ ["Australia",14,"Luke",92.4,"Brian",91.4],["Mexico",11,"Gabe",96.5,"Brian",94.5],
+ ["Ukraine",10,"Luke",97.6,"Brian",95.0],["Egypt",10,"Luke",98.0,"Brian",96.0],
+ ["Greece",9,"Drew",98.5,"Brett",94.9],["Brazil",9,"Gabe",92.7,"Brian",84.7],
+ ["Spain",9,"Gabe",98.9,"Brian",95.8],["Netherlands",8,"Drew",99.5,"Brian",99.3],
+ ["Turkey",8,"Zach",95.6,"Brian",94.4]
+];
+
+/* ============ territory map ============ */
+// region: [rounds, group avg, owner, owner avg, runner-up, their avg, label lat, label lon, inEuropeInset]
+const TERR=[
+ ["United States & Canada",201,96.2,"Brian",97.8,"Zach",96.2, 44,-100,0],
+ ["Mexico & Central America",20,93.6,"Gabe",96.8,"Brian",95.9, 18,-99,0],
+ ["Caribbean",11,97.3,"Zach",98.6,"Luke",98.5, 18.5,-70,0],
+ ["Andes & Northern S. America",31,86.4,"Gabe",89.1,"Brian",87.6, -8,-74,0],
+ ["Brazil & Southern Cone",21,87.2,"Gabe",93.0,"Brian",88.1, -20,-50,0],
+ ["British Isles",36,97.6,"Drew",98.4,"Brian",98.3, 54.5,-3,1],
+ ["Nordics",20,95.7,"Drew",97.8,"Brian",97.0, 61.5,16,1],
+ ["France & Low Countries",42,96.2,"Gabe",97.9,"Brett",96.6, 47.5,2,1],
+ ["Germany & the Alps",31,95.5,"Gabe",97.4,"Brian",96.4, 50,11.5,1],
+ ["Iberia",16,95.7,"Gabe",98.5,"Drew",98.1, 40,-4,1],
+ ["Italy",21,96.7,"Gabe",98.9,"Brian",97.5, 42.8,12.8,1],
+ ["Central Europe",11,93.8,"Brian",96.5,"Gabe",96.1, 50.8,19.5,1],
+ ["The Balkans & Greece",16,95.1,"Drew",97.6,"Gabe",97.0, 42.6,22.5,1],
+ ["Baltics & Belarus",6,90.9,"Drew",96.5,"Brian",95.3, 55.8,26,1],
+ ["Ukraine & Moldova",10,90.3,"Brian",94.6,"Zach",94.1, 48.8,31.5,1],
+ ["Russia",20,77.9,"Gabe",81.2,"Brian",79.7, 62,95,0],
+ ["Turkey & the Levant",17,96.3,"Zach",97.4,"Gabe",96.9, 38,35,1],
+ ["Gulf, Iraq & Iran",20,92.7,"Brian",95.0,"Zach",93.5, 27,50,0],
+ ["North Africa",20,93.6,"Brian",95.4,"Drew",93.9, 26,15,0],
+ ["West Africa",21,85.4,"Gabe",91.1,"Brett",87.4, 12,-4,0],
+ ["Central Africa",11,76.0,"Gabe",86.2,"Luke",74.6, -1,18,0],
+ ["East Africa & the Horn",24,85.3,"Gabe",88.6,"Brian",88.0, 3,40,0],
+ ["Southern Africa",19,82.0,"Gabe",87.1,"Drew",84.9, -23,26,0],
+ ["Central Asia",7,84.0,"Luke",88.0,"Brian",85.6, 44.5,63,0],
+ ["South Asia",39,88.7,"Brian",92.5,"Gabe",91.9, 23,79,0],
+ ["China & Mongolia",32,87.0,"Gabe",87.5,"Drew",87.5, 37,103,0],
+ ["Japan, Korea & Taiwan",37,94.9,"Brian",97.3,"Gabe",94.7, 36.5,136,0],
+ ["Southeast Asia",29,89.8,"Brian",91.8,"Gabe",90.7, 4,112,0],
+ ["Australia & New Zealand",23,89.6,"Luke",93.5,"Brian",93.4, -26,134,0],
+ ["Pacific Islands",9,59.6,"Brett",68.4,"Brian",67.9, -16,178,0]
+];
+const OWNCOL={Brian:"var(--o-brian)",Gabe:"var(--o-gabe)",Drew:"var(--o-drew)",Zach:"var(--o-zach)",
+ Brett:"var(--o-brett)",Luke:"var(--o-luke)",Danny:"var(--o-danny)"};
+const PCOL=OWNCOL;
+// which countries make up each region (names as the world map spells them, plus aliases)
+const RC={
+"United States & Canada":"United States,United States of America,Canada",
+"Mexico & Central America":"Mexico,Guatemala,El Salvador,Honduras,Nicaragua,Costa Rica,Panama,Belize",
+"Caribbean":"Cuba,Haiti,Dominican Republic,Dominican Rep.,Jamaica,Bahamas,Trinidad and Tobago,Puerto Rico",
+"Andes & Northern S. America":"Colombia,Venezuela,Ecuador,Peru,Bolivia,Chile,Guyana,Suriname,French Guiana",
+"Brazil & Southern Cone":"Brazil,Argentina,Uruguay,Paraguay,Falkland Is.",
+"British Isles":"United Kingdom,Ireland",
+"Nordics":"Norway,Sweden,Denmark,Finland,Iceland,Greenland",
+"France & Low Countries":"France,Belgium,Netherlands,Luxembourg",
+"Germany & the Alps":"Germany,Austria,Switzerland,Liechtenstein",
+"Iberia":"Spain,Portugal,Andorra",
+"Italy":"Italy,Malta,San Marino",
+"Central Europe":"Poland,Czechia,Czech Rep.,Slovakia,Hungary",
+"The Balkans & Greece":"Romania,Bulgaria,Serbia,Croatia,Slovenia,Bosnia and Herz.,Montenegro,Macedonia,Albania,Kosovo,Greece,Cyprus,N. Cyprus",
+"Baltics & Belarus":"Estonia,Latvia,Lithuania,Belarus",
+"Ukraine & Moldova":"Ukraine,Moldova",
+"Caucasus":"Georgia,Armenia,Azerbaijan",
+"Russia":"Russia",
+"Turkey & the Levant":"Turkey,Israel,Palestine,Jordan,Lebanon,Syria",
+"Gulf, Iraq & Iran":"Iraq,Iran,Saudi Arabia,Yemen,Oman,United Arab Emirates,Qatar,Bahrain,Kuwait",
+"North Africa":"Egypt,Libya,Tunisia,Algeria,Morocco,W. Sahara,Sudan",
+"West Africa":"Nigeria,Ghana,Senegal,Mali,Niger,Burkina Faso,C\u00f4te d'Ivoire,Ivory Coast,Guinea,Sierra Leone,Liberia,Togo,Benin,Gambia,Guinea-Bissau,Mauritania,Cape Verde",
+"Central Africa":"Cameroon,Chad,Central African Rep.,Gabon,Congo,Dem. Rep. Congo,Eq. Guinea,Angola",
+"East Africa & the Horn":"Ethiopia,Kenya,Tanzania,Uganda,Rwanda,Burundi,Somalia,Somaliland,Djibouti,Eritrea,S. Sudan",
+"Southern Africa":"South Africa,Zimbabwe,Zambia,Malawi,Mozambique,Botswana,Namibia,Lesotho,Swaziland,Eswatini,Madagascar,Mauritius",
+"Central Asia":"Kazakhstan,Uzbekistan,Turkmenistan,Kyrgyzstan,Tajikistan",
+"South Asia":"India,Pakistan,Bangladesh,Sri Lanka,Nepal,Bhutan,Maldives,Afghanistan",
+"China & Mongolia":"China,Mongolia",
+"Japan, Korea & Taiwan":"Japan,Korea,Dem. Rep. Korea,Taiwan",
+"Southeast Asia":"Indonesia,Malaysia,Singapore,Thailand,Vietnam,Philippines,Myanmar,Cambodia,Lao PDR,Brunei,Timor-Leste",
+"Australia & New Zealand":"Australia,New Zealand",
+"Pacific Islands":"Papua New Guinea,Fiji,Samoa,Tonga,Vanuatu,Solomon Is.,New Caledonia,Kiribati,Palau,Micronesia"
+};
+const NAME2REG={};
+Object.entries(RC).forEach(([r,l])=>l.split(",").forEach(c=>NAME2REG[c.trim()]=r));
+
+// jsvectormap "world" is a Miller projection, 900 x 440.7, central meridian 11.5.
+// Calibrated against the shipped geometry: x = 450 + 2.5*(lon-11.5), y = 285.4 - 143.24*1.25*ln(tan(pi/4 + 0.4*lat))
+function proj(lat,lon){
+  let d=lon-11.5; while(d>180)d-=360; while(d<-180)d+=360;
+  const p=lat*Math.PI/180;
+  return [450+2.5*d, 285.4-143.24*1.25*Math.log(Math.tan(Math.PI/4+0.4*p))];
+}
+
+function drawTerritory(world){
+  const owner={}, meta={};
+  TERR.forEach(t=>{owner[t[0]]=t[3]; meta[t[0]]=t;});
+  const paths=world.paths;
+  const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+  // country shapes, grouped so same-owner neighbours read as one block
+  let shapes="";
+  Object.entries(paths).forEach(([code,v])=>{
+    const reg=NAME2REG[v.name];
+    const col=reg&&owner[reg]?OWNCOL[owner[reg]]:"var(--o-none)";
+    shapes+=`<path d="${v.path}" fill="${col}" stroke="var(--hair)" stroke-width="0.35" vector-effect="non-scaling-stroke"/>`;
+  });
+
+  const SHORTNM={
+    "United States & Canada":"US & CANADA","Mexico & Central America":"MEXICO & C. AMERICA",
+    "Andes & Northern S. America":"ANDES & THE NORTH","Brazil & Southern Cone":"BRAZIL & THE CONE",
+    "Western & Southern Europe":"W. & S. EUROPE","France & Low Countries":"FRANCE & LOW COUNTRIES",
+    "Germany & the Alps":"GERMANY & THE ALPS","The Balkans & Greece":"BALKANS & GREECE",
+    "Baltics & Belarus":"BALTICS & BELARUS","Ukraine & Moldova":"UKRAINE & MOLDOVA",
+    "Turkey & the Levant":"TURKEY & THE LEVANT","Gulf, Iraq & Iran":"GULF, IRAQ & IRAN",
+    "East Africa & the Horn":"EAST AFRICA & HORN","China & Mongolia":"CHINA & MONGOLIA",
+    "Japan, Korea & Taiwan":"JAPAN & KOREA","Australia & New Zealand":"AUSTRALIA & NZ"};
+
+  const host=document.getElementById("worldmap");
+  host.innerHTML='<svg id="wsvg" viewBox="0 0 900 441" preserveAspectRatio="xMidYMid meet"'
+    +' role="img" aria-label="Zoomable world map. Each of 30 regions is shaded for the player with the'
+    +' highest mean accuracy there: Gabe holds 13 regions, Brian 8, Drew 4, Zach 2, Luke 2, Brett 1.">'
+    +'<g>'+shapes+'</g><g id="wlab"></g></svg>';
+  const svg=host.querySelector("#wsvg"), lab=svg.querySelector("#wlab");
+  let VB={x:0,y:0,w:900,h:441};
+
+  function scaleNow(){ const m=svg.getScreenCTM(); return (m&&m.a)?m.a:1; }
+  function toUser(cx,cy){
+    const m=svg.getScreenCTM();
+    if(!m) return {x:VB.x+VB.w/2,y:VB.y+VB.h/2};
+    try{ return new DOMPoint(cx,cy).matrixTransform(m.inverse()); }
+    catch(e){ const q=svg.createSVGPoint(); q.x=cx; q.y=cy; return q.matrixTransform(m.inverse()); }
+  }
+  function clampVB(){
+    VB.w=Math.max(48,Math.min(900,VB.w));
+    VB.h=VB.w*441/900;
+    VB.x=Math.max(-30,Math.min(900-VB.w+30,VB.x));
+    VB.y=Math.max(-30,Math.min(441-VB.h+30,VB.y));
+  }
+  function paint(){
+    clampVB();
+    svg.setAttribute("viewBox",VB.x.toFixed(1)+" "+VB.y.toFixed(1)+" "+VB.w.toFixed(1)+" "+VB.h.toFixed(1));
+    const k=scaleNow(), u=v=>v/k;                    // screen px -> user units
+    const detail=VB.w<440;                           // zoomed in enough for the tight regions
+    const fs=u(13), efs=u(8.4);
+    lab.innerHTML=TERR.filter(t=>detail||!t[9]).map(t=>{
+      const [x,y]=proj(t[7],t[8]);
+      const pad=VB.w*0.04;
+      if(x<VB.x-pad||x>VB.x+VB.w+pad||y<VB.y-pad||y>VB.y+VB.h+pad) return "";
+      const nm=SHORTNM[t[0]]||t[0].toUpperCase();
+      return '<text x="'+x.toFixed(1)+'" y="'+(y-fs*0.85).toFixed(1)+'" text-anchor="middle"'
+        +' font-family="IBM Plex Mono, monospace" font-size="'+efs.toFixed(2)+'"'
+        +' letter-spacing="'+(efs*0.08).toFixed(3)+'" fill="#fff" fill-opacity="0.85"'
+        +' stroke="rgba(16,24,20,.6)" stroke-width="'+(efs*0.55).toFixed(3)+'" paint-order="stroke">'
+        +nm.replace(/&/g,"&amp;")+'</text>'
+        +'<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="middle"'
+        +' font-family="Archivo, sans-serif" font-weight="700" font-size="'+fs.toFixed(2)+'"'
+        +' fill="#fff" stroke="rgba(16,24,20,.65)" stroke-width="'+(fs*0.3).toFixed(3)+'"'
+        +' paint-order="stroke">'+t[3]+'</text>';
+    }).join("");
+    document.querySelectorAll("#zpresets button").forEach(b=>{
+      const v=b.dataset.vb.split(",").map(Number);
+      b.classList.toggle("on", Math.abs(v[0]-VB.x)<2 && Math.abs(v[2]-VB.w)<2);
+    });
+  }
+  function zoomAt(ux,uy,f){
+    const w=Math.max(48,Math.min(900,VB.w*f)), r=w/VB.w;
+    VB.x=ux-(ux-VB.x)*r; VB.y=uy-(uy-VB.y)*r; VB.w=w; paint();
+  }
+  function zoomCentre(f){ zoomAt(VB.x+VB.w/2, VB.y+VB.h/2, f); }
+
+  svg.addEventListener("wheel",e=>{
+    if(!(e.ctrlKey||e.metaKey)) return;          // plain scroll still scrolls the page
+    e.preventDefault();
+    const p=toUser(e.clientX,e.clientY);
+    zoomAt(p.x,p.y,Math.exp(e.deltaY*0.0016));
+  },{passive:false});
+  svg.addEventListener("dblclick",e=>{
+    e.preventDefault();
+    const p=toUser(e.clientX,e.clientY);
+    zoomAt(p.x,p.y, e.shiftKey?1.7:0.55);
+  });
+  let drag=null;
+  svg.addEventListener("pointerdown",e=>{
+    drag={cx:e.clientX,cy:e.clientY,vx:VB.x,vy:VB.y,k:scaleNow()};
+    try{svg.setPointerCapture(e.pointerId)}catch(err){}
+    svg.classList.add("grabbing");
+  });
+  svg.addEventListener("pointermove",e=>{
+    if(!drag) return;
+    VB.x=drag.vx-(e.clientX-drag.cx)/drag.k;
+    VB.y=drag.vy-(e.clientY-drag.cy)/drag.k;
+    paint();
+  });
+  const stop=()=>{drag=null; svg.classList.remove("grabbing");};
+  svg.addEventListener("pointerup",stop);
+  svg.addEventListener("pointercancel",stop);
+  svg.addEventListener("pointerleave",stop);
+  const zi=document.getElementById("zin"), zo=document.getElementById("zout");
+  if(zi) zi.addEventListener("click",()=>zoomCentre(0.62));
+  if(zo) zo.addEventListener("click",()=>zoomCentre(1.6));
+  const zp=document.getElementById("zpresets");
+  if(zp) zp.addEventListener("click",e=>{
+    const b=e.target.closest("button[data-vb]"); if(!b) return;
+    const v=b.dataset.vb.split(",").map(Number);
+    VB={x:v[0],y:v[1],w:v[2],h:v[2]*441/900}; paint();
+  });
+  paint();
+  window.addEventListener("resize",paint);
+
+  // ---- legend ----
+  const tally={};
+  TERR.forEach(t=>tally[t[3]]=(tally[t[3]]||0)+1);
+  ["Gabe","Brian","Drew","Zach","Luke","Brett","Danny"].forEach(p=>tally[p]=tally[p]||0);
+  document.getElementById("maplegend").innerHTML=Object.entries(tally).sort((a,b)=>b[1]-a[1])
+    .map(([p,n])=>`<b class="${n?"":"zero"}"><span class="sw" style="background:${OWNCOL[p]}"></span><span class="nm">${p}</span><span class="ct">${n} region${n===1?"":"s"}</span></b>`).join("");
+
+  // ---- table ----
+  document.getElementById("regionrows").innerHTML=[...TERR].sort((a,b)=>b[1]-a[1]).map(t=>`
+    <tr class="${t[1]<12?"thin":""}">
+      <td>${t[0].replace(/&/g,"&amp;")}</td>
+      <td class="dim">${t[1]}</td>
+      <td>${t[2].toFixed(1)}</td>
+      <td class="owner" style="padding-left:20px;text-align:left"><span style="background:${OWNCOL[t[3]]}"></span>${t[3]}</td>
+      <td>${t[4].toFixed(1)}</td>
+      <td style="padding-left:16px;text-align:left" class="dim">${t[5]}</td>
+      <td class="dim">${t[6].toFixed(1)}</td>
+    </tr>`).join("");
+}
+(function(){
+  let tries=0;
+  (function wait(){
+    if(window.__WORLD&&window.__WORLD.paths){ try{drawTerritory(window.__WORLD)}catch(e){
+      document.getElementById("worldmap").innerHTML='<div class="mapfail">Map geometry could not be drawn.</div>'} return; }
+    if(++tries>60){ document.getElementById("worldmap").innerHTML='<div class="mapfail">Map geometry did not load. The region table below has the full breakdown.</div>'; return; }
+    setTimeout(wait,120);
+  })();
+})();
+
+const barW=(v,lo,hi)=>Math.max(4,Math.round(((v-lo)/(hi-lo))*210));
+
+/* ============ player picker + focus ============ */
+
+const BYNAME={}; ALL.forEach(r=>BYNAME[r.p]=r);
+const L14={}; ERA.forEach(r=>L14[r.p]=r);
+let focusP=null;
+
+function applyFocus(){
+  document.querySelectorAll("tbody tr[data-p]").forEach(tr=>{
+    tr.classList.toggle("focus", !!focusP && tr.dataset.p===focusP);
+  });
+  document.querySelectorAll("#picker button").forEach(b=>
+    b.setAttribute("aria-pressed", String(b.dataset.p===(focusP||"__all"))));
+  const strip=document.getElementById("focusstrip"), note=document.getElementById("focusnote");
+  if(!focusP){
+    strip.innerHTML=""; strip.hidden=true;
+    note.innerHTML=""; note.hidden=true;
+  }else{
+    const r=BYNAME[focusP], rank=ALL.findIndex(x=>x.p===focusP)+1;
+    const ord=["st","nd","rd","th","th","th","th"][rank-1];
+    strip.innerHTML=`
+      <div><div class="n hi">${r.w}</div><div class="k">Wins \u00b7 ${rank}${ord} overall</div></div>
+      <div><div class="n hi">${(100*r.w/r.gp).toFixed(1)}%</div><div class="k">Win rate</div></div>
+      <div><div class="n">${r.gp}<span class="dim" style="font-size:19px">/170</span></div><div class="k">Days played</div></div>
+      <div><div class="n">${r.avg.toFixed(1)}</div><div class="k">Average score</div></div>
+      <div><div class="n">${r.best}</div><div class="k">Personal best</div></div>
+      <div><div class="n">${r.h}</div><div class="k">Perfect rounds</div></div>
+      <div><div class="n">${STREAK[focusP]}</div><div class="k">Longest win streak</div></div>
+      <div><div class="n">${L14[focusP]?L14[focusP].l14.toFixed(1):"\u2014"}</div><div class="k">Last 14 days</div></div>`;
+    strip.hidden=false; note.hidden=false;
+    const cl=CLOCK.find(c=>c[0]===focusP);
+    note.innerHTML=`<span><b>${focusP}</b> has posted ${r.gp} of 170 puzzles, won ${r.w}, and landed in the day's top three ${r.pod} times.
+      Worst day: ${r.worst}. Median posting time ${cl[1]}, with ${cl[2]}% of scores in before 9am.</span>`;
+  }
+  drawDaily();
+}
+document.getElementById("picker").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-p]"); if(!b) return;
+  focusP = b.dataset.p==="__all" ? null : b.dataset.p;
+  applyFocus();
+});
+
+document.getElementById("allrows").innerHTML=ALL.map((r,i)=>`
+  <tr data-p="${r.p}">
+    <td class="pos">${i+1}</td>
+    <td>${r.p}</td>
+    <td class="key kw">${r.w}</td>
+    <td class="key">${r.h}</td>
+    <td class="key">${r.avg.toFixed(1)}</td>
+    <td class="dim">${r.gp}</td>
+    <td>${(100*r.w/r.gp).toFixed(1)}%</td>
+    <td class="dim">${r.pod}</td><td class="dim">${r.g950}</td><td class="dim">${r.s800}</td>
+    <td>${r.best}</td><td class="dim">${r.worst}</td>
+  </tr>`).join("");
+
+document.getElementById("h2hrows").innerHTML=ORDER.map(a=>`
+  <tr data-p="${a}"><td>${a}</td>${ORDER.map(b=>{
+    if(a===b) return `<td class="self">\u2014</td>`;
+    const [w,l]=H2H[a][b];
+    return `<td class="${w>l?"up":w<l?"dn":""}">${w}\u2013${l}</td>`;
+  }).join("")}</tr>`).join("");
+
+/* ---- regional strength table ---- */
+document.querySelector("#regtable tbody").innerHTML=REG.map(([name,n,gm,d])=>`
+  <tr>
+    <td>${name}</td>
+    <td class="dim">${n}</td>
+    <td><span class="diffbar"><i style="width:${Math.round((gm-78)/20*70)}px"></i><span>${gm.toFixed(1)}</span></span></td>
+    ${d.map((v,k)=>{
+      if(v===null) return `<td class="delta na">\u00b7</td>`;
+      const cls=v>0?"up":"dn";
+      const big=Math.abs(v)>=8?(v>0?" big":" bigdn"):"";
+      return `<td class="delta ${cls}${big}">${v>0?"+":""}${v.toFixed(1)}</td>`;
+    }).join("")}
+  </tr>`).join("");
+
+/* ---- hardest-rounds table ---- */
+document.getElementById("hardrows").innerHTML=[...HARD].sort((a,b)=>b.h-a.h).map((r,i)=>`
+  <tr data-p="${r.p}">
+    <td class="pos">${i+1}</td><td>${r.p}</td>
+    <td>${r.e.toFixed(1)}</td>
+    <td class="wins" style="font-size:16px">${r.h.toFixed(1)}</td>
+    <td style="color:var(--warm)">&minus;${r.dr!==undefined?r.dr:(r.e-r.h).toFixed(1)}</td>
+    <td>${r.r5.toFixed(1)}</td>
+    <td>${r.v.toFixed(1)}</td>
+    <td class="dim">${r.n}${r.n<20?' <span class="tie">thin</span>':''}</td>
+  </tr>`).join("");
+
+/* ---- posting time ---- */
+(function(){
+  const maxW=Math.max(...TIMING.map(t=>t[3]));
+  document.getElementById("tbars").innerHTML=TIMING.map(([lb,n,dl,wr])=>`
+    <div class="tbrow${wr===maxW?" top":""}">
+      <div class="lb">${lb}</div>
+      <div class="tk"><i style="width:${(wr/28*100).toFixed(1)}%"></i><b>${wr.toFixed(1)}% won</b></div>
+      <div class="rt">${n} posts &nbsp; score ${dl>0?`<s>+${dl.toFixed(1)}</s>`:`<em>${dl.toFixed(1)}</em>`}</div>
+    </div>`).join("");
+  document.getElementById("clockrows").innerHTML=CLOCK.map((c,i)=>{
+    const [p,med,pre,e,l]=c, d=l-e;
+    return `<tr data-p="${p}">
+      <td class="pos">${i+1}</td><td>${p}</td>
+      <td>${med}</td><td class="dim">${pre}%</td>
+      <td>${e.toFixed(1)}</td><td>${l.toFixed(1)}</td>
+      <td style="color:${d>0?"var(--accent)":"var(--warm)"};font-weight:600">${d>0?"+":"&minus;"}${Math.abs(d).toFixed(1)}</td>
+    </tr>`;}).join("");
+})();
+
+
+/* ---- country ownership ---- */
+document.getElementById("ownlog").innerHTML=OWN.map(([c,n,p,v,p2,v2])=>`
+  <li><div class="c">${c} \u00b7 ${n} rounds</div>
+  <div class="own"><span class="who">${p}</span><span class="sc">${v.toFixed(1)}</span></div>
+  <div class="r2">then ${p2} ${v2.toFixed(1)}</div></li>`).join("");
+
+
+/* ---- round-position difficulty ---- */
+(function(){
+  const W=760,H=250,ml=44,mr=16,mt=16,mb=42;
+  const iw=W-ml-mr, ih=H-mt-mb;
+  const lo=60,hi=100;
+  const x=i=>ml+iw*(i+0.5)/5;
+  const y=v=>mt+ih-((v-lo)/(hi-lo))*ih;
+  const bw=Math.min(46,iw/5-26);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Mean accuracy by round position: the global field falls from 93.9 on round 1 to 73.8 on round 5, this group from 97.4 to 82.6">`;
+  [60,70,80,90,100].forEach(t=>{
+    s+=`<line x1="${ml}" y1="${y(t)}" x2="${W-mr}" y2="${y(t)}" stroke="var(--contour-2)" stroke-width="1"/>`;
+    s+=`<text x="${ml-9}" y="${y(t)+4}" text-anchor="end" fill="var(--ink-3)" font-family="IBM Plex Mono, monospace" font-size="10.5">${t}</text>`;
+  });
+  for(let i=0;i<5;i++){
+    const g=ROUNDPOS.global[i], o=ROUNDPOS.ours[i];
+    s+=`<rect x="${x(i)-bw/2}" y="${y(g)}" width="${bw}" height="${(mt+ih)-y(g)}" fill="var(--lo)" opacity="0.34"/>`;
+    s+=`<rect x="${x(i)-bw/2}" y="${y(o)}" width="${bw}" height="4" fill="var(--accent)"/>`;
+    s+=`<text x="${x(i)}" y="${y(o)-8}" text-anchor="middle" fill="var(--accent)" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600">${o.toFixed(1)}</text>`;
+    s+=`<text x="${x(i)}" y="${y(g)+16}" text-anchor="middle" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace" font-size="10.5">${g.toFixed(1)}</text>`;
+    s+=`<text x="${x(i)}" y="${H-20}" text-anchor="middle" fill="var(--ink)" font-family="Archivo, sans-serif" font-size="12" font-weight="600">Round ${i+1}</text>`;
+  }
+  s+=`<text x="${ml}" y="${H-4}" fill="var(--ink-3)" font-family="IBM Plex Mono, monospace" font-size="10">grey bar = world field</text>`;
+  s+=`<text x="${ml+150}" y="${H-4}" fill="var(--accent)" font-family="IBM Plex Mono, monospace" font-size="10">teal line = this group</text>`;
+  s+=`</svg>`;
+  document.getElementById("rounds").innerHTML=s;
+})();
+
+/* ============ daily scores, all players, toggleable ============ */
+const SHOW={Brian:true,Gabe:true,Drew:true,Zach:true,Brett:true,Luke:true,Danny:true,Best:false};
+let MODE="roll";
+const MON_ABBR=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+function dayDate(i){const d=new Date(DAY0); d.setDate(d.getDate()+i); return d;}
+function roll(a,w){
+  return a.map((_,i)=>{
+    let s=0,n=0;
+    for(let j=Math.max(0,i-w+1); j<=i; j++) if(a[j]!=null){s+=a[j];n++;}
+    return n>=Math.min(3,w)?s/n:null;
+  });
+}
+document.getElementById("toggles").innerHTML=
+  ALL.map(r=>`<button type="button" data-s="${r.p}" aria-pressed="true" style="color:${PCOL[r.p]}"><span class="ln"></span>${r.p}</button>`).join("")
+  +`<button type="button" data-s="Best" aria-pressed="false" style="color:var(--gold)"><span class="ln"></span>Day's best</button>`;
+document.getElementById("toggles").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-s]"); if(!b) return;
+  SHOW[b.dataset.s]=!SHOW[b.dataset.s];
+  b.setAttribute("aria-pressed",String(SHOW[b.dataset.s]));
+  drawDaily();
+});
+document.getElementById("modes").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-mode]"); if(!b) return;
+  MODE=b.dataset.mode;
+  document.querySelectorAll("#modes button").forEach(x=>x.classList.toggle("on",x===b));
+  drawDaily();
+});
+
+const CH={W:920,H:330,ml:46,mr:16,mt:16,mb:44};
+function drawDaily(){
+  const {W,H,ml,mr,mt,mb}=CH, iw=W-ml-mr, ih=H-mt-mb;
+  const lo=MODE==="roll"?740:560, hi=1000;
+  const X=i=>ml+iw*i/(NDAYS-1);
+  const Y=v=>mt+ih-((Math.max(lo,Math.min(hi,v))-lo)/(hi-lo))*ih;
+  const ticks=MODE==="roll"?[760,820,880,940,1000]:[600,700,800,900,1000];
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Daily Maptap scores for all seven players across 170 puzzles, ${MODE==="roll"?"as a 7-day rolling average":"day by day"}.">`;
+  ticks.forEach(t=>{
+    s+=`<line x1="${ml}" y1="${Y(t)}" x2="${W-mr}" y2="${Y(t)}" stroke="var(--contour-2)" stroke-width="1"/>`;
+    s+=`<text x="${ml-9}" y="${Y(t)+4}" text-anchor="end" fill="var(--ink-3)" font-family="IBM Plex Mono, monospace" font-size="10.5">${t}</text>`;
+  });
+  // month gridlines
+  let lastM=-1;
+  for(let i=0;i<NDAYS;i++){
+    const d=dayDate(i);
+    if(d.getMonth()!==lastM){
+      lastM=d.getMonth();
+      if(i>0) s+=`<line x1="${X(i).toFixed(1)}" y1="${mt}" x2="${X(i).toFixed(1)}" y2="${mt+ih}" stroke="var(--contour)" stroke-width="1" stroke-dasharray="2 4"/>`;
+      s+=`<text x="${(X(i)+4).toFixed(1)}" y="${H-22}" fill="var(--ink-3)" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="1.2">${MON_ABBR[lastM]}</text>`;
+    }
+  }
+  function line(arr,col,wid,op,dash){
+    let d="",open=false;
+    arr.forEach((v,i)=>{
+      if(v==null){open=false;return;}
+      d+=(open?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)+" "; open=true;
+    });
+    if(!d) return "";
+    return `<path d="${d.trim()}" fill="none" stroke="${col}" stroke-width="${wid}" stroke-opacity="${op}" stroke-linejoin="round" stroke-linecap="round"${dash?` stroke-dasharray="${dash}"`:""}/>`;
+  }
+  const prep=a=>MODE==="roll"?roll(a,7):a;
+  if(SHOW.Best) s+=line(prep(SERIES.Best),"var(--gold)",1.5,0.85,"4 3.5");
+  ALL.forEach(r=>{
+    if(!SHOW[r.p]) return;
+    const dim = focusP && focusP!==r.p;
+    s+=line(prep(SERIES[r.p]),PCOL[r.p], focusP===r.p?2.9:1.6, dim?0.3:0.95,"");
+  });
+  s+=`<rect id="hit" x="${ml}" y="${mt}" width="${iw}" height="${ih}" fill="transparent"/>`;
+  s+=`<line id="guide" x1="0" y1="${mt}" x2="0" y2="${mt+ih}" stroke="var(--ink-3)" stroke-width="1" opacity="0"/>`;
+  s+=`</svg>`;
+  const host=document.getElementById("chart");
+  host.innerHTML=s;
+
+  const svg=host.querySelector("svg"), guide=svg.querySelector("#guide"), rd=document.getElementById("readout");
+  function at(ev){
+    const r=svg.getBoundingClientRect();
+    const px=(ev.clientX-r.left)/r.width*W;
+    let i=Math.round((px-ml)/iw*(NDAYS-1));
+    i=Math.max(0,Math.min(NDAYS-1,i));
+    guide.setAttribute("x1",X(i)); guide.setAttribute("x2",X(i)); guide.setAttribute("opacity","0.5");
+    const d=dayDate(i);
+    const best=SERIES.Best[i];
+    const parts=ALL.filter(r2=>SHOW[r2.p]&&SERIES[r2.p][i]!=null)
+      .sort((a,b)=>SERIES[b.p][i]-SERIES[a.p][i])
+      .map(r2=>`<span class="rd"><i style="background:${PCOL[r2.p]}"></i>${r2.p} ${SERIES[r2.p][i]}${SERIES[r2.p][i]===best?" \u2605":""}</span>`);
+    rd.innerHTML=`<span class="rdate">${d.getDate()} ${MON_ABBR[d.getMonth()]}</span>`
+      +(parts.length?parts.join(""):`<span class="rd">nobody visible played</span>`)
+      +`<span class="rd rwin">best ${best}</span>`;
+  }
+  svg.addEventListener("mousemove",at);
+  svg.addEventListener("mouseleave",()=>{guide.setAttribute("opacity","0");
+    rd.innerHTML="Hover the chart for a single day.";});
+}
+applyFocus();
+</script>
+</body>
+</html>
