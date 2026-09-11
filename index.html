@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Maptap standings for a seven-player WhatsApp group: 920 scores across 170 daily puzzles, with a zoomable map of who is strongest in each region of the world.">
+<meta name="description" content="Maptap standings for a seven-player WhatsApp group: 920 scores across 170 daily puzzles, a zoomable map of who is strongest in each region, and a builder for custom five-place rounds.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20100%20100%27%3E%3Ctext%20y=%27.9em%27%20font-size=%2790%27%3E%F0%9F%97%BA%3C/text%3E%3C/svg%3E">
 <!-- these three rules are supplied by the artifact host; standalone pages need them -->
 <style>
@@ -225,6 +225,54 @@
     --o-luke:#93AF64; --o-brett:#AE82A0; --o-danny:#C9738C; --o-none:#2E3B34;
     --sea:#141D19; --hair:#101815;
   }
+  /* ---------- custom round builder / player ---------- */
+  #game input[type=text]{
+    font:inherit; font-family:"Source Serif 4",Georgia,serif; font-size:15px;
+    background:var(--raise); color:var(--ink); border:1px solid var(--contour);
+    border-radius:4px; padding:8px 11px; width:100%;
+  }
+  #game input[type=text]:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent)}
+  #game input[type=text]::placeholder{color:var(--ink-3); opacity:1}
+  .grow5{display:grid; grid-template-columns:26px 1fr auto; gap:10px; align-items:center;
+    padding:9px 0; border-bottom:1px solid var(--contour-2)}
+  .grow5:last-child{border-bottom:0}
+  .grow5 .gn{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.1em; color:var(--ink-3)}
+  .grow5.active .gn{color:var(--accent); font-weight:600}
+  .gset{font:inherit; cursor:pointer; white-space:nowrap;
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; padding:7px 12px;
+    background:var(--raise); color:var(--ink-2); border:1px solid var(--contour); border-radius:100px}
+  .gset:hover{border-color:var(--ink-3)}
+  .grow5.active .gset{border-color:var(--accent); color:var(--accent)}
+  .gset.done{color:var(--accent); border-color:var(--accent)}
+  .gbar{display:flex; flex-wrap:wrap; gap:9px; align-items:center; margin-top:14px}
+  .gbtn{font:inherit; cursor:pointer; font-family:Archivo,sans-serif; font-weight:600; font-size:14px;
+    padding:9px 17px; border-radius:100px; border:1px solid var(--ink); background:var(--ink); color:var(--paper)}
+  .gbtn[disabled]{opacity:.4; cursor:not-allowed}
+  .gbtn.ghost{background:transparent; color:var(--ink); border-color:var(--contour)}
+  .gbtn:focus-visible,.gset:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  .ghint{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-3)}
+  .gprompt{border:1px solid var(--contour); border-radius:3px; background:var(--raise); padding:14px 16px;
+    display:flex; flex-wrap:wrap; gap:6px 16px; align-items:baseline}
+  .gprompt .gq{font-family:Archivo,sans-serif; font-weight:700; font-size:clamp(20px,3.4vw,28px);
+    letter-spacing:-.02em; line-height:1.1}
+  .gprompt .gr{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.13em;
+    text-transform:uppercase; color:var(--ink-3)}
+  .gscore{display:flex; flex-wrap:wrap; gap:6px 22px; align-items:baseline; margin-top:12px}
+  .gscore .gv{font-family:Archivo,sans-serif; font-weight:800; font-size:34px; letter-spacing:-.02em}
+  .gscore .gd{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-2)}
+  .gresult{border:1px solid var(--contour); border-radius:3px; background:var(--raise); padding:16px}
+  .gresult pre{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--ink); margin:10px 0 0;
+    white-space:pre-wrap; word-break:break-word; line-height:1.7}
+  .glist{display:grid; gap:1px; background:var(--contour-2); border:1px solid var(--contour);
+    border-radius:3px; margin-top:12px}
+  .glist div{background:var(--raise); padding:9px 13px; display:flex; gap:12px; align-items:baseline;
+    justify-content:space-between; font-family:"IBM Plex Mono",monospace; font-size:12.5px}
+  .glist .gl{color:var(--ink); font-family:"Source Serif 4",Georgia,serif; font-size:14.5px}
+  .glink{margin-top:12px}
+  .glink input{font-family:"IBM Plex Mono",monospace !important; font-size:11.5px !important}
+  #gmapwrap svg{width:100%; height:clamp(300px,49vw,470px); cursor:crosshair; touch-action:none; display:block}
+  #gmapwrap svg.grabbing{cursor:grabbing}
+  #gmapwrap{border:1px solid var(--contour); border-radius:3px; background:var(--sea); overflow:hidden; margin-top:14px}
   .mapctl{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between}
   .zpresets{flex-wrap:wrap}
   .zbtns{display:inline-flex; gap:6px}
@@ -388,7 +436,7 @@
   <div class="chartcard">
     <div class="scroller"><div id="rounds" style="min-width:560px"></div></div>
   </div>
-  <p class="method"><span>MapTap sequences each day easy&nbsp;&rarr;&nbsp;hard, and it is not subtle: the global field drops <b>20 points</b> from round 1 to round 5. This group is 4&#8211;9 points above the world on every round, and the whole competition is decided in the last two.</span></p>
+  <p class="method"><span>MapTap sequences each day easy&nbsp;&rarr;&nbsp;hard, and it is not subtle: the global field drops <b>20 points</b> from round 1 to round 5. It also pays them differently. Fitting all 920 posted finals against their round accuracies solves exactly &#8212; the scoring is <span class="mono">1&times;R1 + 1&times;R2 + 2&times;R3 + 3&times;R4 + 3&times;R5</span>, out of 1000 &#8212; so <b>rounds 4 and 5 carry 60% of the day between them</b> and round 1 is worth a tenth of it. The hardest rounds are also the dearest, which is why the whole competition is decided in the last two.</span></p>
 </section>
 
 <section>
@@ -414,7 +462,7 @@
       <tbody id="hardrows"></tbody>
     </table>
   </div>
-  <p class="method"><span>Sorted by the closing rounds, where the days are actually decided. Zach has the group's steepest fall-off (12.5) and the worst round 5 (79.7), which is why he sits fourth on wins despite the second-most perfect rounds all year.</span></p>
+  <p class="method"><span>Sorted by the closing rounds, where the days are actually decided &#8212; and those rounds are worth <b>3&times;</b> what the openers are, so Gabe's 1.4-point edge over Brian on rounds 4 and 5 outweighs Brian's 1.3-point edge on rounds 1 and 2 by roughly three to one. Zach has the group's steepest fall-off (12.5) and the worst round 5 (79.7), which is why he sits fourth on wins despite the second-most perfect rounds all year.</span></p>
 </section>
 
 
@@ -458,18 +506,20 @@
 
 
 <section>
-  <div class="sechead"><h2>Does going late help?</h2><span class="note">909 scores posted on the day</span></div>
-  <p class="lede" style="font-size:17px">The theory in the chat is that whoever plays after dinner &#8212; or just not at 7am before coffee &#8212; has the advantage. <b>It isn't true.</b> Across 909 same-day posts the correlation between posting time and score is <b>&minus;0.006</b>: nothing. Five of the seven players score slightly worse on their own later days, and the highest win rate in the group belongs to the people posting <b>before 7am</b>.</p>
+  <div class="sechead"><h2>Does going late help?</h2><span class="note">909 scores, each on the poster's own clock</span></div>
+  <p class="lede" style="font-size:17px">The theory in the chat is that whoever plays after dinner &#8212; or at least not at 7am before coffee &#8212; has the edge. The honest answer is that <b>the data can barely test it, because almost nobody plays late.</b> Of 909 scores posted on the puzzle's own day, 654 land between 4am and 9am on the poster's own clock and only 41 come after 2pm. Within that range there is no signal at all: the correlation between local posting time and score is <b>&minus;0.005</b>.</p>
+  <p class="method" style="margin-bottom:4px"><span>Gabe and Luke are on Pacific time, Zach on Central, everyone else Eastern. The export came off an Eastern phone, so every timestamp below has been shifted to the poster's own clock &#8212; which makes <b>Gabe the earliest riser in the group, not the latest</b>: his median tap is 06:18 his time, and 98% of his scores are in before 9am. It also matches what the chat already knew, Gabe having once clocked Luke &#8220;tapping maps at 555 local time&#8221;.</span></p>
   <div class="chartcard">
     <div class="tbars" id="tbars"></div>
   </div>
   <div class="scroller">
     <table style="min-width:680px">
-      <thead><tr><th colspan="2" class="l">Player</th><th>Median&nbsp;post</th><th>Before&nbsp;9am</th><th>Own early half</th><th>Own late half</th><th>Late &minus; early</th></tr></thead>
+      <thead><tr><th colspan="2" class="l">Player</th><th>Zone</th><th>Median&nbsp;post</th><th>Before&nbsp;9am</th><th>Own early half</th><th>Own late half</th><th>Late &minus; early</th></tr></thead>
       <tbody id="clockrows"></tbody>
     </table>
   </div>
-  <p class="method"><span>Each player's own scores split at their own median posting time, so this compares them only against themselves. <b>Only Zach is better late.</b> The obvious caveat: the timestamp is when the score was <i>posted</i>, not when it was played, and the two late buckets hold just 33 and 23 posts between everyone. But there is no signal here at all, and the group's 2&#8211;6pm window is the worst on the board.</span></p>
+  <p class="method"><span>The two columns disagree on purpose, and the gap is the whole lesson. <b>Win rate is confounded by who plays when</b> &#8212; the midnight&#8211;4am row has the group's best win rate at 29.6%, but 23 of its 27 posts are Brian and Gabe, the two strongest players. The score column subtracts each player's own average first, and once you do that the same row is flat at 0.0. <b>Time of day explains nothing; who is typing explains everything.</b> The 2&#8211;6pm and 6pm&#8211;midnight rows hold 26 and 15 posts, so treat them as anecdotes rather than evidence.</span></p>
+  <p class="method"><span>The table splits each player's own scores at their own median local posting time, so it compares them only against themselves. <b>Only Zach is better late</b>, by 4.3 points. The obvious caveat throughout: a timestamp records when a score was <i>posted</i>, not when it was played.</span></p>
 </section>
 
 <section>
@@ -485,9 +535,78 @@
   </div>
 </section>
 
+<section id="game">
+  <div class="sechead"><h2>Build your own round</h2><span class="note">five places, any names you like</span></div>
+  <p class="lede" style="font-size:17px">Drop five pins on the map, call them whatever you want, and you get a link to paste in the chat. Nothing is stored anywhere &#8212; the whole puzzle travels inside the link. So a pin on Belize City can be labelled <b>&#8220;Georgetown, British Honduras&#8221;</b>, or <b>&#8220;this flag: &#127463;&#127462;&#127487;&#8221;</b>, or a riddle. Whatever you type is all the guesser sees.</p>
+
+  <div class="seg" id="gmode" style="margin-bottom:14px">
+    <button type="button" data-g="build" class="on">Build one</button>
+    <button type="button" data-g="play">Play one</button>
+  </div>
+
+  <div id="gbuild">
+    <div style="margin-bottom:12px"><input type="text" id="gtitle" maxlength="60" placeholder="Name your round &#8212; e.g. Brian&#8217;s Colonial Nonsense"></div>
+    <div id="growlist"></div>
+    <div class="gbar">
+      <button type="button" class="gbtn" id="gmake" disabled>Make the link</button>
+      <span class="ghint" id="gstatus">Rounds 4 and 5 count triple &#8212; put the nasty ones there.</span>
+    </div>
+    <div class="glink" id="glinkwrap" hidden>
+      <input type="text" id="glink" readonly>
+      <div class="gbar"><button type="button" class="gbtn ghost" id="gcopy">Copy link</button>
+        <span class="ghint" id="gcopied"></span></div>
+    </div>
+  </div>
+
+  <div id="gplay" hidden>
+    <div id="gload">
+      <div style="margin-bottom:10px"><input type="text" id="gcode" placeholder="Paste a puzzle link or code here"></div>
+      <div class="gbar"><button type="button" class="gbtn" id="gstart">Load it</button>
+        <span class="ghint" id="gloaderr"></span></div>
+    </div>
+    <div id="gactive" hidden>
+      <div class="gprompt"><span class="gr" id="ground">Round 1 of 5</span><span class="gq" id="gq"></span></div>
+      <div class="gscore" id="gfeedback" hidden>
+        <span class="gv" id="gpts"></span><span class="gd" id="gdist"></span>
+      </div>
+      <div class="gbar">
+        <button type="button" class="gbtn" id="gsubmit" disabled>Submit guess</button>
+        <button type="button" class="gbtn ghost" id="gnext" hidden>Next round</button>
+        <span class="ghint" id="ghint2">Zoom in, then click where you think it is.</span>
+      </div>
+    </div>
+    <div id="gdone" hidden>
+      <div class="gresult">
+        <div class="gscore"><span class="gv" id="gtotal"></span><span class="gd">out of 1000</span></div>
+        <div class="glist" id="gbreak"></div>
+        <pre id="gshare"></pre>
+        <div class="gbar"><button type="button" class="gbtn ghost" id="gcopyres">Copy result</button>
+          <button type="button" class="gbtn ghost" id="gagain">Play again</button>
+          <span class="ghint" id="gcopied2"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="gmapwrap"><div class="mapfail">Loading map&#8230;</div></div>
+  <div class="mapctl" style="margin-top:10px">
+    <div class="seg zpresets" id="gpresets">
+      <button type="button" data-vb="0,0,900" class="on">World</button>
+      <button type="button" data-vb="-20,52,400">N. America</button>
+      <button type="button" data-vb="80,249,390">S. America</button>
+      <button type="button" data-vb="353,89,250">Europe</button>
+      <button type="button" data-vb="255,184,400">Africa</button>
+      <button type="button" data-vb="449,99,440">Asia</button>
+      <button type="button" data-vb="652,276,280">Oceania</button>
+    </div>
+    <div class="zbtns">
+      <button type="button" id="gzout" aria-label="Zoom out">&minus;</button>
+      <button type="button" id="gzin" aria-label="Zoom in">+</button>
+    </div>
+  </div>
+  <p class="method"><span><b>Accuracy</b> is distance only: 100 within 15km, then decaying smoothly &#8212; about 92 at 100km, 66 at 500km, 43 at 1,000km, near zero past 4,000km. <b>The multipliers are MapTap's real ones.</b> Fitting the group's 920 posted scores against their five round accuracies solves exactly, with no error on a single entry: the final is <span class="mono">1&times;R1 + 1&times;R2 + 2&times;R3 + 3&times;R4 + 3&times;R5</span>, out of 1000. That is why a posted final never matched the sum of its rounds. The pin you drop defines the answer, so zoom in before you place it.</span></p>
+</section>
 
 </div>
-
 <script>
 const ALL=[
  {p:"Brian",w:62,tie:4,gp:169,h:270,pod:130,g950:61,s800:15,best:998,worst:587,avg:909.1},
@@ -532,13 +651,15 @@ const SERIES={}; Object.entries(RAW).forEach(([k,s])=>{
   SERIES[k]=Array.from({length:NDAYS},(_,i)=>{const v=+s.slice(i*3,i*3+3); return v?v:null;});
 });
 const STREAK={Brian:4,Gabe:5,Drew:2,Zach:3,Brett:1,Luke:1,Danny:2};
-// posting time: label, posts, score delta vs own average, win rate %
-const TIMING=[["Before 7am",60,-2.7,25.0],["7\u20139am",418,2.2,20.6],["9\u201311am",312,-1.2,17.0],
- ["11am\u20132pm",63,-1.8,22.2],["2\u20136pm",33,-14.2,12.1],["After 6pm",23,2.6,13.0]];
-// player, median post time, % of posts before 9am, own early half avg, own late half avg
-const CLOCK=[["Brian","07:42",85,910.5,907.8],["Drew","07:59",66,899.3,897.7],["Brett","08:18",73,888.1,880.8],
- ["Gabe","09:18",30,914.8,913.3],["Zach","09:31",39,883.6,887.8],["Luke","10:37",13,875.2,874.7],
- ["Danny","11:41",22,901.5,894.2]];
+// local posting time: label, posts, score delta vs own average, win rate %
+const TIMING=[["Midnight&#8211;4am",27,0.0,29.6],["4&#8211;7am",227,-4.6,20.7],["7&#8211;9am",427,3.1,19.0],
+ ["9&#8211;11am",133,0.0,15.8],["11am&#8211;2pm",54,-4.0,22.2],["2&#8211;6pm",26,-5.4,15.4],
+ ["6pm&#8211;midnight",15,-2.3,13.3]];
+// player, timezone, median LOCAL post time, % of posts before 9am local, own early half, own late half
+const CLOCK=[["Gabe","PT","06:18",98,914.8,913.3],["Luke","PT","07:38",61,875.2,874.7],
+ ["Brian","ET","07:42",85,910.5,907.8],["Drew","ET","07:59",66,899.3,897.7],
+ ["Brett","ET","08:18",73,888.1,880.8],["Zach","CT","08:32",67,883.6,887.8],
+ ["Danny","ET","11:42",22,901.5,894.2]];
 
 // region, rounds, group mean, deltas vs each player's own overall mean (null = fewer than 6 rounds)
 const REG=[
@@ -898,13 +1019,14 @@ document.getElementById("hardrows").innerHTML=[...HARD].sort((a,b)=>b.h-a.h).map
   document.getElementById("tbars").innerHTML=TIMING.map(([lb,n,dl,wr])=>`
     <div class="tbrow${wr===maxW?" top":""}">
       <div class="lb">${lb}</div>
-      <div class="tk"><i style="width:${(wr/28*100).toFixed(1)}%"></i><b>${wr.toFixed(1)}% won</b></div>
-      <div class="rt">${n} posts &nbsp; score ${dl>0?`<s>+${dl.toFixed(1)}</s>`:`<em>${dl.toFixed(1)}</em>`}</div>
+      <div class="tk"><i style="width:${(wr/32*100).toFixed(1)}%"></i><b>${wr.toFixed(1)}% won</b></div>
+      <div class="rt">${n} posts &nbsp; score ${dl>0.05?`<s>+${dl.toFixed(1)}</s>`:dl<-0.05?`<em>${dl.toFixed(1)}</em>`:`<span class="dim">0.0</span>`}</div>
     </div>`).join("");
   document.getElementById("clockrows").innerHTML=CLOCK.map((c,i)=>{
-    const [p,med,pre,e,l]=c, d=l-e;
+    const [p,tz,med,pre,e,l]=c, d=l-e;
     return `<tr data-p="${p}">
       <td class="pos">${i+1}</td><td>${p}</td>
+      <td class="dim">${tz}</td>
       <td>${med}</td><td class="dim">${pre}%</td>
       <td>${e.toFixed(1)}</td><td>${l.toFixed(1)}</td>
       <td style="color:${d>0?"var(--accent)":"var(--warm)"};font-weight:600">${d>0?"+":"&minus;"}${Math.abs(d).toFixed(1)}</td>
@@ -1039,6 +1161,269 @@ function drawDaily(){
     rd.innerHTML="Hover the chart for a single day.";});
 }
 applyFocus();
+
+/* ============ custom round: builder + player ============ */
+(function(){
+  const SITE = /github\.io$/.test(location.hostname)
+    ? location.origin + location.pathname
+    : "https://danielstarosta-817.github.io/maptap/";
+  const KY = 143.24*1.25, X0 = 450, Y0 = 285.4;
+  const toLon = x => 11.5 + (x - X0)/2.5;
+  const toLat = y => (Math.atan(Math.exp((Y0 - y)/KY)) - Math.PI/4)/0.4 * 180/Math.PI;
+  const R = 6371;
+  function haversine(a,b,c,d){
+    const p=Math.PI/180, dla=(c-a)*p, dlo=(d-b)*p;
+    const h=Math.sin(dla/2)**2 + Math.cos(a*p)*Math.cos(c*p)*Math.sin(dlo/2)**2;
+    return 2*R*Math.asin(Math.min(1,Math.sqrt(h)));
+  }
+  const scoreFor = km => km<=15 ? 100 : Math.max(0, Math.round(100*Math.exp(-km/1200)));
+  const MULT=[1,1,2,3,3];                     // MapTap's own weighting, fitted from 920 real scores
+  const MAXTOT=MULT.reduce((a,b)=>a+b,0)*100; // 1000
+  const gemoji = v => v===100?"\u{1F3AF}":v>=95?"\u{1F525}":v>=90?"\u{1F3C5}":v>=85?"\u{1F393}"
+    :v>=75?"\u2728":v>=65?"\u{1F44F}":v>=50?"\u{1F642}":v>=30?"\u{1F62C}":"\u{1F92C}";
+  const enc = o => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+  function dec(t){
+    t=String(t).trim();
+    const m=t.match(/[#?]p=([A-Za-z0-9\-_]+)/); if(m) t=m[1];
+    t=t.replace(/^.*[#?]p=/,"").replace(/-/g,"+").replace(/_/g,"/");
+    while(t.length%4) t+="=";
+    return JSON.parse(decodeURIComponent(escape(atob(t))));
+  }
+
+  const host=document.getElementById("gmapwrap");
+  if(!host) return;
+  let MAP=null;
+
+  function buildMap(world){
+    let shapes="";
+    Object.entries(world.paths).forEach(([code,v])=>{
+      shapes+='<path d="'+v.path+'" fill="var(--o-none)" stroke="var(--hair)" stroke-width="0.35"'
+        +' vector-effect="non-scaling-stroke" data-c="'+String(v.name).replace(/"/g,"&quot;")+'"/>';
+    });
+    host.innerHTML='<svg id="gsvg" viewBox="0 0 900 441" preserveAspectRatio="xMidYMid meet"'
+      +' role="img" aria-label="Clickable world map for building and playing a custom round.">'
+      +'<g>'+shapes+'</g><g id="gpins"></g></svg>';
+    const svg=host.querySelector("#gsvg"), pins=svg.querySelector("#gpins");
+    let VB={x:0,y:0,w:900,h:441}, marks=[], onPick=null;
+    const k=()=>{const m=svg.getScreenCTM();return (m&&m.a)?m.a:1;};
+    function user(cx,cy){
+      const m=svg.getScreenCTM(); if(!m) return {x:X0,y:Y0};
+      try{ return new DOMPoint(cx,cy).matrixTransform(m.inverse()); }
+      catch(e){ const q=svg.createSVGPoint(); q.x=cx; q.y=cy; return q.matrixTransform(m.inverse()); }
+    }
+    function clamp(){ VB.w=Math.max(6,Math.min(900,VB.w)); VB.h=VB.w*441/900;
+      VB.x=Math.max(-30,Math.min(900-VB.w+30,VB.x)); VB.y=Math.max(-30,Math.min(441-VB.h+30,VB.y)); }
+    function paint(){
+      clamp();
+      svg.setAttribute("viewBox",VB.x.toFixed(2)+" "+VB.y.toFixed(2)+" "+VB.w.toFixed(2)+" "+VB.h.toFixed(2));
+      const u=v=>v/(k()||1);
+      pins.innerHTML=marks.map(m=>{
+        const r=u(m.big?7:5.5), sw=u(2);
+        let out="";
+        if(m.line) out+='<line x1="'+m.line[0].toFixed(2)+'" y1="'+m.line[1].toFixed(2)+'" x2="'+m.x.toFixed(2)
+          +'" y2="'+m.y.toFixed(2)+'" stroke="'+m.col+'" stroke-width="'+u(1.6).toFixed(3)+'" stroke-dasharray="'+u(4).toFixed(2)+' '+u(3).toFixed(2)+'"/>';
+        out+='<circle cx="'+m.x.toFixed(2)+'" cy="'+m.y.toFixed(2)+'" r="'+r.toFixed(3)+'" fill="'+m.col
+          +'" stroke="#fff" stroke-width="'+sw.toFixed(3)+'"/>';
+        if(m.label) out+='<text x="'+m.x.toFixed(2)+'" y="'+(m.y-r-u(5)).toFixed(2)+'" text-anchor="middle"'
+          +' font-family="Archivo, sans-serif" font-weight="700" font-size="'+u(12).toFixed(2)
+          +'" fill="#fff" stroke="rgba(16,24,20,.65)" stroke-width="'+u(3.4).toFixed(2)+'" paint-order="stroke">'
+          +m.label+'</text>';
+        return out;
+      }).join("");
+      document.querySelectorAll("#gpresets button").forEach(b=>{
+        const v=b.dataset.vb.split(",").map(Number);
+        b.classList.toggle("on", Math.abs(v[0]-VB.x)<2 && Math.abs(v[2]-VB.w)<2);
+      });
+    }
+    function zoomAt(ux,uy,f){ const w=Math.max(6,Math.min(900,VB.w*f)), r=w/VB.w;
+      VB.x=ux-(ux-VB.x)*r; VB.y=uy-(uy-VB.y)*r; VB.w=w; paint(); }
+    svg.addEventListener("wheel",e=>{ if(!(e.ctrlKey||e.metaKey)) return; e.preventDefault();
+      const p=user(e.clientX,e.clientY); zoomAt(p.x,p.y,Math.exp(e.deltaY*0.0016)); },{passive:false});
+    let drag=null, moved=0;
+    svg.addEventListener("pointerdown",e=>{ drag={cx:e.clientX,cy:e.clientY,vx:VB.x,vy:VB.y,k:k()}; moved=0;
+      try{svg.setPointerCapture(e.pointerId)}catch(err){} });
+    svg.addEventListener("pointermove",e=>{ if(!drag) return;
+      const dx=e.clientX-drag.cx, dy=e.clientY-drag.cy;
+      moved=Math.max(moved,Math.abs(dx)+Math.abs(dy));
+      if(moved>4){ svg.classList.add("grabbing");
+        VB.x=drag.vx-dx/drag.k; VB.y=drag.vy-dy/drag.k; paint(); } });
+    svg.addEventListener("pointerup",e=>{
+      const wasDrag=moved>4; drag=null; svg.classList.remove("grabbing");
+      if(wasDrag||!onPick) return;
+      const p=user(e.clientX,e.clientY);
+      const c=(e.target&&e.target.getAttribute)?e.target.getAttribute("data-c"):null;
+      onPick({x:p.x,y:p.y,lat:+toLat(p.y).toFixed(3),lon:+toLon(p.x).toFixed(3),country:c});
+    });
+    const stop=()=>{drag=null;svg.classList.remove("grabbing")};
+    svg.addEventListener("pointercancel",stop); svg.addEventListener("pointerleave",stop);
+    const gz=document.getElementById("gzin"), gzo=document.getElementById("gzout");
+    if(gz) gz.addEventListener("click",()=>zoomAt(VB.x+VB.w/2,VB.y+VB.h/2,0.62));
+    if(gzo) gzo.addEventListener("click",()=>zoomAt(VB.x+VB.w/2,VB.y+VB.h/2,1.6));
+    const gp=document.getElementById("gpresets");
+    if(gp) gp.addEventListener("click",e=>{ const b=e.target.closest("button[data-vb]"); if(!b) return;
+      const v=b.dataset.vb.split(",").map(Number); VB={x:v[0],y:v[1],w:v[2],h:v[2]*441/900}; paint(); });
+    window.addEventListener("resize",paint);
+    paint();
+    return {
+      setPick(fn){onPick=fn},
+      setMarks(m){marks=m; paint()},
+      fromLatLon(lat,lon){
+        let d=lon-11.5; while(d>180)d-=360; while(d<-180)d+=360;
+        return {x:X0+2.5*d, y:Y0-KY*Math.log(Math.tan(Math.PI/4+0.4*lat*Math.PI/180))};
+      },
+      focus(lat,lon,w){ const p=this.fromLatLon(lat,lon);
+        VB={x:p.x-w/2,y:p.y-(w*441/900)/2,w:w,h:w*441/900}; paint(); }
+    };
+  }
+
+  /* ---------- builder ---------- */
+  const rows=[{},{},{},{},{}];
+  let active=0;
+  const $=id=>document.getElementById(id);
+  function drawRows(){
+    $("growlist").innerHTML=rows.map((r,i)=>
+      '<div class="grow5'+(i===active?" active":"")+'" data-i="'+i+'">'
+      +'<span class="gn">'+(i+1)+'</span>'
+      +'<input type="text" maxlength="70" data-i="'+i+'" placeholder="What the guesser sees \u2014 e.g. Georgetown, British Honduras" value="'+(r.n?String(r.n).replace(/"/g,"&quot;"):"")+'">'
+      +'<button type="button" class="gset'+(r.lat!=null?" done":"")+'" data-i="'+i+'">'
+      +(r.lat!=null?("\u2713 "+r.lat.toFixed(2)+", "+r.lon.toFixed(2)):"Set pin")+"</button></div>").join("");
+    refreshMarks(); checkReady();
+  }
+  function refreshMarks(){
+    if(!MAP) return;
+    MAP.setMarks(rows.filter(r=>r.lat!=null).map((r,i)=>{
+      const p=MAP.fromLatLon(r.lat,r.lon);
+      const idx=rows.indexOf(r);
+      return {x:p.x,y:p.y,col:idx===active?"var(--accent)":"var(--o-drew)",label:String(idx+1),big:idx===active};
+    }));
+  }
+  function checkReady(){
+    const ok=rows.every(r=>r.lat!=null && r.n && String(r.n).trim().length);
+    $("gmake").disabled=!ok;
+    $("gstatus").textContent = ok ? "All five set \u2014 make the link."
+      : "Row "+(active+1)+": type a label, then click the map to place its pin.";
+  }
+  $("growlist").addEventListener("click",e=>{
+    const b=e.target.closest(".gset"); const row=e.target.closest(".grow5");
+    if(b){ active=+b.dataset.i; drawRows(); return; }
+    if(row){ active=+row.dataset.i; drawRows(); }
+  });
+  $("growlist").addEventListener("input",e=>{
+    const inp=e.target.closest("input[data-i]"); if(!inp) return;
+    rows[+inp.dataset.i].n=inp.value; checkReady(); save();
+  });
+  $("gmake").addEventListener("click",()=>{
+    const o={t:($("gtitle").value||"Custom round").slice(0,60),
+             q:rows.map(r=>[String(r.n).trim().slice(0,70), r.lat, r.lon])};
+    const url=SITE+"#p="+enc(o);
+    $("glink").value=url; $("glinkwrap").hidden=false; $("gcopied").textContent="";
+    $("glink").focus(); $("glink").select();
+  });
+  function copy(txt,el){
+    let ok=false;
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt); ok=true; } }catch(e){}
+    if(!ok){ try{ const t=document.createElement("textarea"); t.value=txt; document.body.appendChild(t);
+      t.select(); ok=document.execCommand("copy"); t.remove(); }catch(e){} }
+    el.textContent = ok ? "Copied." : "Select the text above and copy it.";
+  }
+  $("gcopy").addEventListener("click",()=>copy($("glink").value,$("gcopied")));
+  function save(){ try{ localStorage.setItem("maptap-draft",JSON.stringify({t:$("gtitle").value,rows:rows})); }catch(e){} }
+  function load(){ try{ const d=JSON.parse(localStorage.getItem("maptap-draft")||"null");
+    if(d&&Array.isArray(d.rows)&&d.rows.length===5){ for(let i=0;i<5;i++) rows[i]=d.rows[i]||{};
+      if(d.t) $("gtitle").value=d.t; } }catch(e){} }
+  $("gtitle").addEventListener("input",save);
+
+  /* ---------- player ---------- */
+  let P=null, ri=0, guess=null, results=[];
+  function showPlay(p){
+    P=p; ri=0; guess=null; results=[];
+    $("gload").hidden=true; $("gactive").hidden=false; $("gdone").hidden=true;
+    round();
+  }
+  function round(){
+    guess=null;
+    $("gq").textContent=P.q[ri][0];
+    const mx=MULT[ri]||1;
+    $("ground").textContent="Round "+(ri+1)+" of "+P.q.length+" \u00b7 \u00d7"+mx+(P.t?" \u00b7 "+P.t:"");
+    $("gfeedback").hidden=true; $("gsubmit").hidden=false; $("gsubmit").disabled=true;
+    $("gnext").hidden=true; $("ghint2").textContent="Zoom in, then click where you think it is.";
+    MAP.setMarks([]);
+  }
+  function onGuess(p){
+    guess=p;
+    MAP.setMarks([{x:p.x,y:p.y,col:"var(--accent)",big:true}]);
+    $("gsubmit").disabled=false;
+    $("ghint2").textContent = p.country ? ("Pin in "+p.country+" \u2014 click again to move it.") : "Click again to move it.";
+  }
+  $("gsubmit").addEventListener("click",()=>{
+    if(!guess) return;
+    const q=P.q[ri], km=haversine(guess.lat,guess.lon,q[1],q[2]), v=scoreFor(km);
+    const mx=MULT[ri]||1;
+    results.push({n:q[0],km:km,v:v,m:mx,pts:v*mx});
+    const t=MAP.fromLatLon(q[1],q[2]);
+    MAP.setMarks([{x:guess.x,y:guess.y,col:"var(--accent)",line:[t.x,t.y]},
+                  {x:t.x,y:t.y,col:"var(--gold)",big:true,label:"answer"}]);
+    $("gpts").textContent=v;
+    $("gdist").textContent=(km<1?"under 1":Math.round(km).toLocaleString())+" km away \u00a0\u00b7\u00a0 \u00d7"+mx+" = "+(v*mx)+" points";
+    $("gfeedback").hidden=false; $("gsubmit").hidden=true;
+    $("ghint2").textContent="";
+    if(ri<P.q.length-1){ $("gnext").hidden=false; }
+    else { finish(); }
+  });
+  $("gnext").addEventListener("click",()=>{ ri++; round(); });
+  function finish(){
+    const tot=results.reduce((a,b)=>a+b.pts,0);
+    $("gtotal").textContent=tot;
+    $("gbreak").innerHTML=results.map((r,i)=>
+      '<div><span class="gl">'+(i+1)+". "+r.n+'</span><span>'+r.v+gemoji(r.v)
+      +' <span class="dim">\u00d7'+r.m+"</span> = "+r.pts
+      +' <span class="dim">'+(r.km<1?"<1":Math.round(r.km).toLocaleString())+" km</span></span></div>").join("");
+    $("gshare").textContent=(P.t||"Custom round")+"\n"
+      +results.map(r=>r.v+gemoji(r.v)).join(" ")+"\nFinal score: "+tot;
+    $("gdone").hidden=false; $("gactive").hidden=true;
+  }
+  $("gcopyres").addEventListener("click",()=>copy($("gshare").textContent,$("gcopied2")));
+  $("gagain").addEventListener("click",()=>{ showPlay(P); });
+  $("gstart").addEventListener("click",()=>{
+    try{
+      const o=dec($("gcode").value);
+      if(!o||!Array.isArray(o.q)||!o.q.length) throw 0;
+      o.q=o.q.filter(r=>Array.isArray(r)&&r.length>=3&&isFinite(r[1])&&isFinite(r[2]));
+      if(!o.q.length) throw 0;
+      $("gloaderr").textContent=""; mode("play"); showPlay(o);
+    }catch(e){ $("gloaderr").textContent="That doesn't look like a puzzle link."; }
+  });
+
+  /* ---------- mode switch ---------- */
+  function mode(m){
+    $("gbuild").hidden = m!=="build";
+    $("gplay").hidden  = m!=="play";
+    document.querySelectorAll("#gmode button").forEach(b=>b.classList.toggle("on",b.dataset.g===m));
+    if(!MAP) return;
+    if(m==="build"){ MAP.setPick(p=>{ rows[active].lat=p.lat; rows[active].lon=p.lon; drawRows(); save(); }); refreshMarks(); }
+    else { MAP.setPick(p=>{ if(!$("gactive").hidden) onGuess(p); }); MAP.setMarks([]); }
+  }
+  $("gmode").addEventListener("click",e=>{ const b=e.target.closest("button[data-g]"); if(b) mode(b.dataset.g); });
+
+  /* ---------- boot ---------- */
+  let tries=0;
+  (function wait(){
+    if(window.__WORLD&&window.__WORLD.paths){
+      try{ MAP=buildMap(window.__WORLD); }
+      catch(e){ host.innerHTML='<div class="mapfail">Map could not be drawn.</div>'; return; }
+      load(); drawRows();
+      const hash=(location.hash||"");
+      if(/[#?]p=/.test(hash)){
+        try{ const o=dec(hash); mode("play"); showPlay(o); return; }catch(e){}
+      }
+      mode("build");
+      return;
+    }
+    if(++tries>60){ host.innerHTML='<div class="mapfail">Map geometry did not load, so the round builder is unavailable.</div>'; return; }
+    setTimeout(wait,120);
+  })();
+})();
+
 </script>
 </body>
 </html>

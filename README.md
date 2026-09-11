@@ -39,6 +39,10 @@ Everything else — all scores, region assignments and chart geometry — is inl
   Cross-checked against the standings ChatGPT produced on 22 July: wins matched exactly for all
   six players who were playing then.
 - **A win** goes to the highest final score of the day; on a tie, everyone at the top gets one.
+- **MapTap's scoring formula**, recovered by least-squares fitting the 920 posted finals against their
+  five round accuracies, is `1*R1 + 1*R2 + 2*R3 + 3*R4 + 3*R5`, out of 1000. It reproduces all 920
+  entries exactly, with zero error, which is why a posted final never equals the sum of its rounds.
+  The custom round builder uses the same weighting.
 - **Locations** come from MapTap's permanent per-date archive pages, which name the five stories
   in round order. 166 of the 170 days list all five; the other four list only four and sit out of
   the geography tables — 830 rounds joined, 818 placed in one of 30 regions.
