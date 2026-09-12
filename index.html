@@ -12,7 +12,664 @@
 </style>
 <title>Maptap Standings</title>
 <script>window.jsVectorMap={addMap:function(n,d){window.__WORLD=d;}};</script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+/* Leaflet 1.9.4 stylesheet, inlined verbatim. (c) 2010-2023 Volodymyr Agafonkin,
+   (c) 2010-2011 CloudMade. BSD-2-Clause. https://leafletjs.com
+   Inlined rather than linked because without it the map panes are unpositioned and the
+   map collapses to nothing -- and a linked stylesheet is exactly what a strict CSP blocks.
+   The three url() references it carries are for the layers control and the default marker
+   icon; this page uses neither, so nothing is fetched. */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+.leaflet-tile::selection {
+	background: transparent;
+}
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	behavior: url(#default#VML);
+	display: inline-block;
+	position: absolute;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted;
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted;
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-image: url(images/layers-2x.png);
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path {
+	background-image: url(images/marker-icon.png);
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsvectormap/1.5.3/maps/world.js"></script>
@@ -271,59 +928,73 @@
     --sea:#141D19; --hair:#101815;
   }
   /* ---------- the builder, dressed as the game rather than the site ----------
-     Palette lifted from MapTap's own stylesheet: #000011 ground, #44f8fb brand, #99f8fb
+     Palette lifted from MapTap's own stylesheet: #070d13 ground, #63b3bb brand, #9fb6bb
      muted text, translucent slate cards. Redefining the tokens on this one container
      re-themes everything inside it without touching the rest of the page. */
+  .hrounds{list-style:none; margin:0; padding:0; display:grid; gap:8px;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+  .gamewin .hround{
+    display:block; text-decoration:none; padding:11px 13px; border-radius:6px;
+    border:1px solid var(--contour); background:var(--raise); color:var(--ink);
+  }
+  .gamewin .hround:hover{border-color:var(--accent); background:var(--accent-soft)}
+  .gamewin .hround .ht{display:block; font-family:Archivo,sans-serif; font-weight:700;
+    font-size:15.5px; letter-spacing:-.01em}
+  .gamewin .hround .hn{display:block; font-family:"IBM Plex Mono",monospace; font-size:11px;
+    color:var(--ink-3); margin-top:3px; line-height:1.35}
+  @media (max-width:760px){ .hrounds{grid-template-columns:1fr} }
+  .gamewin .osmcredit{font-family:"IBM Plex Mono",monospace; font-size:10px; color:var(--ink-3);
+    margin:14px 0 8px; letter-spacing:.02em}
   .gamewin{
-    --paper:#000011; --raise:rgba(25,34,47,.62); --ink:#ffffff; --ink-2:#99f8fb; --ink-3:#6d8f99;
-    --contour:#1d3b44; --contour-2:#14262c;
-    --accent:#44f8fb; --accent-soft:rgba(68,248,251,.14);
-    --warm:#ff8a5c; --gold:#ffd166; --sea:#000b18; --o-none:#22323a; --o-drew:#44f8fb;
+    --paper:#070d13; --raise:#111c24; --ink:#e7eef0; --ink-2:#9fb6bb; --ink-3:#65818a;
+    --contour:#22343c; --contour-2:#18272e;
+    --accent:#63b3bb; --accent-soft:rgba(99,179,187,.12);
+    --warm:#c2714e; --gold:#c9a227; --sea:#050a10; --o-none:#22323a; --o-drew:#63b3bb;
     background:
-      radial-gradient(1100px 380px at 12% -10%, rgba(68,248,251,.10), transparent 60%),
-      #000011;
-    color:#fff; border:1px solid #1d3b44; border-radius:12px;
+      radial-gradient(1100px 380px at 12% -10%, rgba(99,179,187,.07), transparent 60%),
+      #070d13;
+    color:var(--ink); border:1px solid #22343c; border-radius:8px;
     padding:16px 16px 20px; margin-top:16px;
-    box-shadow:0 0 0 1px rgba(68,248,251,.07), 0 18px 40px -28px rgba(0,0,0,.9);
+    box-shadow:0 0 0 1px rgba(99,179,187,.05), 0 18px 40px -28px rgba(0,0,0,.9);
   }
   .gamewin .gwbar{
     display:flex; align-items:center; gap:9px; padding-bottom:12px; margin-bottom:14px;
-    border-bottom:1px solid rgba(68,248,251,.18);
+    border-bottom:1px solid rgba(99,179,187,.18);
   }
-  .gamewin .gwdot{width:9px; height:9px; border-radius:50%; background:#44f8fb;
-    box-shadow:0 0 10px rgba(68,248,251,.9)}
+  .gamewin .gwdot{width:9px; height:9px; border-radius:50%; background:#63b3bb;
+    box-shadow:0 0 10px rgba(99,179,187,.55)}
   .gamewin .gwname{font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:600;
-    letter-spacing:.28em; color:#44f8fb}
+    letter-spacing:.28em; color:#63b3bb}
   .gamewin .gwsub{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.14em;
-    text-transform:uppercase; color:#6d8f99; margin-left:auto}
-  .gamewin input[type=text]{background:rgba(9,18,26,.85); border-color:#1d3b44; color:#fff}
+    text-transform:uppercase; color:#65818a; margin-left:auto}
+  .gamewin input[type=text]{background:rgba(9,18,26,.85); border-color:#22343c; color:#fff}
   .gamewin input[type=text]::placeholder{color:#5d7b85}
-  .gamewin .gbtn{background:#44f8fb; border-color:#44f8fb; color:#00131a}
-  .gamewin .gbtn.ghost{background:transparent; color:#99f8fb; border-color:#1d3b44}
+  .gamewin .gbtn{background:#63b3bb; border-color:#63b3bb; color:#00131a}
+  .gamewin .gbtn.ghost{background:transparent; color:#9fb6bb; border-color:#22343c}
   .gamewin .gbtn[disabled]{opacity:.32}
-  .gamewin .gset{background:rgba(9,18,26,.85); color:#99f8fb; border-color:#1d3b44}
-  .gamewin .grow5{border-bottom-color:rgba(68,248,251,.14)}
-  .gamewin .gres{background:#1d3b44; border-color:#1d3b44}
+  .gamewin .gset{background:rgba(9,18,26,.85); color:#9fb6bb; border-color:#22343c}
+  .gamewin .grow5{border-bottom-color:rgba(99,179,187,.12)}
+  .gamewin .gres{background:#22343c; border-color:#22343c}
   .gamewin .gres button{background:#07141b}
-  .gamewin .gres button:hover{background:rgba(68,248,251,.12)}
+  .gamewin .gres button:hover{background:rgba(99,179,187,.12)}
   .gamewin .gres .rn{color:#fff}
   .gamewin .gpicked .gpname{color:#fff}
-  .gamewin #gmapwrap{border-color:#1d3b44}
-  .gamewin .bpin{background:#44f8fb; color:#00131a; border-color:#04202a}
+  .gamewin #gmapwrap{border-color:#22343c}
+  .gamewin .bpin{background:#63b3bb; color:#00131a; border-color:#04202a}
   .gamewin .bpin.on{background:#fff; color:#00131a}
   .gamewin .method span{color:#7fa5ae}
-  .gamewin .ghint{color:#6d8f99}
+  .gamewin .ghint{color:#65818a}
   .gamewin .leaflet-control-attribution{background:rgba(0,0,17,.85)!important; color:#5d7b85!important}
-  .gamewin .leaflet-control-attribution a{color:#99f8fb!important}
+  .gamewin .leaflet-control-attribution a{color:#9fb6bb!important}
 
   /* ---------- custom round builder / player ---------- */
-  #game input[type=text]{
+  #game input[type=text], #popen{
     font:inherit; font-family:"Source Serif 4",Georgia,serif; font-size:15px;
     background:var(--raise); color:var(--ink); border:1px solid var(--contour);
     border-radius:4px; padding:8px 11px; width:100%;
   }
-  #game input[type=text]:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent)}
-  #game input[type=text]::placeholder{color:var(--ink-3); opacity:1}
+  #game input[type=text]:focus, #popen:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent)}
+  #game input[type=text]::placeholder, #popen::placeholder{color:var(--ink-3); opacity:1}
   #game textarea{
     font:inherit; font-family:"IBM Plex Mono",monospace; font-size:11px; width:100%; resize:vertical;
     background:var(--raise); color:var(--ink-2); border:1px solid var(--contour); border-radius:4px; padding:9px 11px;
@@ -450,6 +1121,8 @@
   .mapcard svg{display:block; width:100%; height:auto}
   .mapcard .cap{padding:9px 14px 11px; border-top:1px solid var(--contour);
     font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-3); letter-spacing:.04em; background:var(--raise)}
+  .mapself{font-family:Archivo,sans-serif; font-weight:700; font-size:19px; letter-spacing:-.015em;
+    margin:30px 0 10px; padding-top:20px; border-top:1px solid var(--contour)}
   .maplegend{display:flex; flex-wrap:wrap; gap:8px}
   .maplegend b{display:inline-flex; align-items:center; gap:8px; font-weight:400;
     border:1px solid var(--contour); border-radius:100px; padding:5px 12px 5px 8px; background:var(--raise)}
@@ -521,10 +1194,11 @@
     .toggles button{font-size:12.5px; padding:8px 13px 8px 10px}
     .seg button{font-size:12.5px; padding:9px 15px}
     .zbtns button{width:42px; height:38px; font-size:17px}
-    .gbtn{font-size:15px; padding:11px 19px}
-    .gset{font-size:12.5px; padding:10px 14px}
+    .gbtn{font-size:15px; padding:11px 19px; min-height:44px}
+    .gset{font-size:12.5px; padding:10px 14px; min-height:44px}
+    .hround{padding:13px 14px}
     .allctl button{font-size:11.5px; padding:8px 14px}
-    #game input[type=text]{font-size:16px; padding:10px 12px}   /* 16px stops iOS zooming in */
+    #game input[type=text], #popen{font-size:16px; padding:10px 12px}  /* 16px stops iOS zooming in */
 
     /* the wide tables keep their shape and scroll, with an edge shadow to say so */
     .scroller{
@@ -640,14 +1314,75 @@
     </div>
     <p class="method"><span>*A win goes to the highest <b>Final score</b> of the day; on a tie, everyone at the top gets one &#8212; same rule as the July table. Brian has 4 shared wins, Gabe 4, Drew 2, Zach 2, Brett 1.</span></p>
 
-  <div class="maplegend" id="maplegend2" style="margin-top:20px"></div>
+  </details>
+
+  <h3 class="mapself">The territory map</h3>
+  <div class="maplegend" id="maplegend2"></div>
   <div class="mapcard" id="lmap2card">
     <div id="lmap2"></div>
     <div class="cap">Who holds each of the 30 regions, by mean accuracy. Drag to pan,
       &#8984;/Ctrl and scroll to zoom. The full version, with continent jumps and the
       ownership table, is under <b>More data</b>.</div>
   </div>
+</details>
+
+<details class="top" id="byo">
+  <summary class="tophead"><h2>Build your own</h2><span class="note">five places, any names you like</span><span class="chev" aria-hidden="true"></span></summary>
+  <details class="sub" id="playcode" open>
+    <summary class="sechead"><h2>Play a round</h2><span class="note">six of ours, or paste one someone sent you</span><span class="chev" aria-hidden="true"></span></summary>
+    <p class="lede" style="font-size:17px">Six rounds built for this page. Each is five real places, weighted the way MapTap weights them &#8212; the last two count triple, so that is where the mean ones are. They open on their own page and nothing is stored anywhere. <b>These are for fun and do not count.</b> Only the daily game at maptap.gg is tabulated above; a custom round shares as <span class="mono">FAKE MAPTAP</span> and the standings script ignores it.</p>
+    <div class="gamewin">
+      <div class="gwbar"><span class="gwdot"></span><span class="gwname">MAPTAP</span><span class="gwsub">house rounds</span></div>
+      <ul class="hrounds">
+        <li><a class="hround" href="play.html#2~KQQREEEeVsZ6t1LNDAgXGw9xBpsx82SoVGBBRFdeAJsv_VLaDA8KHQZxAp8x92asXWBBTE9GA50pxR_xGBMVGgIfF-Z-tiLrCBJxWVNFGZIp_WGfXlNeQVZDBapToTzuAg0UAggcW84e6WewXlBJQ2BBAoUs8GGqbCcfBhVde8pyvVKvX09BR1VINpoq6mOrWFY"><span class="ht">Dead names</span><span class="hn">cities under the name they lost</span></a></li>
+        <li><a class="hround" href="play.html#2~JxQDAEEEX84_oj__CmCA6-bKxzSYelKzXlVeTVFBBqoy8WWwXFdEQWCAqCyuNMwZy2BBQ09JAJ4oxWKuX09GR1JBNluAQ_pu8ubCdVBFGZgv_WGfQFdBWlJHDp8eNMwZ1JHv89NxBJwx_WWuXGBFTE9DBZ0uxaMB6tGA6-beNpox92GpVWBBQ1NeDpwo_Q"><span class="ht">Just the flag</span><span class="hn">no name, no hint -- tap the capital</span></a></li>
+        <li><a class="hround" href="play.html#2~Iw5QFw4RRN9zrT37bDcZEQ8eVoc_hSbtGRMZFWBED4Ut9GusbFBGWlJHBJMejzLqBQwRGgUFG4tRoSP_AWBCQ09HBpwtxWurQ1JCQFFxdsdypSfnQUE7FRsRXMNssDLwbFVDWlNCBZse82WwVVRBRmAyQsFqqTHrHwBcVCMFRd5xoDqfQFJeR1dBA6ot_X2tWFhJdSUFRMN-qjH7QUEkFQsZXMJssDLwbFJIWlRFDpMe8muwWllHRA"><span class="ht">No coastline</span><span class="hn">every one is in a landlocked country</span></a></li>
+        <li><a class="hround" href="play.html#2~DxMVABVQC5g_tjroCBMDdTUYUotSoTjxAwZcVAAEF_t3qjzzTTEVGglxBpox8WaoWWBBRFVeDpkn9lLKBQRQOxMZWcR8q3--DBVQNwgFU8p75BHxAQgGFRNxD4Uu9mGsbExGR09FA5IoxQf2CEE5BhMRQMp7oCqyTQAEVCwRWc9-qDLnbFNBWlhFD5Me_WWwXVlJRWAkX84_hT7rTSURBhgRG4t-sHPKCBMdERtxBJwx9mGqX2BGQ09CAJMsxQf2CEE8EQ8RG4t-sHPHDAoFABIbNp0t6mOtWFRxRVNJGZ0o8WY"><span class="ht">brett &lt;3 rivers</span><span class="hn">five rivers, one point each</span></a></li>
+        <li><a class="hround" href="play.html#2~LwQcGAgXUtl6qie-BggeEwUfWtgeijzsGQlQOggTWNh2pX--Iw4CAAkVRcU_hyruHxQDdVJFGZon8WWfXlJeR1lCBKpMsTj2GAwZWEExVcB3pSn3DGBER09AB5oqxWevQ1FCR1VxY8JtpSDuAg1cVDUCVsVsqjrtGRMZFWBEAYUn8GOtbFNJWldEBJgekCD1BQgeAgAcXoc_lzzrGQlQOxIDUt92pVKqX09CRldGNp8s6mqoVFVxIAgWVtl2sDqyTTIRHBMRQMI_hSH_D0E0EQwfVNl-sDr9TTMVBBQSW8J8xWGoQ1BFQ1NxGpov6maoVFE"><span class="ht">Belligerent kingdoms</span><span class="hn">states most of the world does not recognise</span></a></li>
+        <li><a class="hround" href="play.html#2~IAgUEA0VF8R55D3xGgkVBgRxZc5mrzn_GwgbWEE5VM5zpT36bFdEWlBEAZ0e6WGvQ1hERldxYth3sTL3DE1QNRMXUsVrrT3_bExFQE9IB5omxX6oVU9DRFJANuN-qjT_TTMfFU1QcspssDbsTSgDGAAeU6oy9mSwXFRARGBdBpsm6metXlJxPw4cWMV2pX--PQ4YGhEVXoc_iTr9Hw4eERIZVqop6mqoXlhxRVRIGZkv_GKfKAUZGgMFRcx35Dz4TRUYEUEjUt16qnPNCAADWEEkRcJssDLwTQURVCIFWcN-xX6tWk9AQlZGNoYu9n2tXFBG"><span class="ht">Middle of nowhere</span><span class="hn">real towns, and the ocean gives you nothing to aim at</span></a></li>
+      </ul>
+      <p class="method" style="margin:14px 0 8px"><span>Sent a round by someone else? Paste the link or the bare code.</span></p>
+      <div class="gbar" style="margin:0">
+        <input type="text" id="popen" style="flex:1; min-width:200px" placeholder="Paste a link or a round code" autocomplete="off" spellcheck="false">
+        <button type="button" class="gbtn" id="pgo">Play it</button>
+      </div>
+      <span class="ghint" id="perr" style="display:block; margin-top:8px"></span>
+    </div>
   </details>
+
+  <details class="sub" id="game" open>
+    <summary class="sechead"><h2>Build your own round</h2><span class="note">five places, any names you like</span><span class="chev" aria-hidden="true"></span></summary>
+    <p class="lede" style="font-size:17px">Search for five real places, then relabel them however you like. Search handles the hard part &#8212; it knows Cairo in Egypt from Cairo in Illinois, finds &#8220;nile river&#8221; or &#8220;machu picchu&#8221; as happily as a city, and even resolves dead names: <b>&#8220;british honduras&#8221;</b> lands on Belize, <b>&#8220;upper volta&#8221;</b> on Burkina Faso. Pick the right match, then rewrite the label to whatever the guesser should see &#8212; a colonial name, a flag, a riddle. Hit <b>Share this round</b> and you get one link. Opening it drops straight into the round on its own page, nothing else around it. Rounds you build are <b>not</b> tabulated into the standings &#8212; only real MapTap is.</p>
+
+
+    <div class="gamewin">
+      <div class="gwbar"><span class="gwdot"></span><span class="gwname">MAPTAP</span><span class="gwsub">round builder</span></div>
+      <div id="gbuild">
+        <div style="margin-bottom:12px"><input type="text" id="gtitle" maxlength="60" placeholder="Name your round &#8212; e.g. Brian&#8217;s Colonial Nonsense"></div>
+        <div id="growlist"></div>
+        <div class="gbar">
+          <button type="button" class="gbtn" id="gmake" disabled>Share this round</button>
+          <button type="button" class="gbtn ghost" id="gclear">Clear all</button>
+          <span class="ghint" id="gstatus">0 of 5 placed.</span>
+        </div>
+        <div class="glink" id="glinkwrap" hidden>
+          <p class="method" style="margin:2px 0 6px"><span>Send either one. Both copy with the round&#8217;s name and a <span class="mono">FAKE MAPTAP</span> label on top, so whoever gets it knows what it is. The link opens the round directly; the code is for pasting into the box above.</span></p>
+          <input type="text" id="glink" readonly>
+          <div class="gbar"><button type="button" class="gbtn ghost" id="gcopy">Copy link</button>
+            <button type="button" class="gbtn ghost" id="gcopycode">Copy code</button>
+            <span class="ghint" id="gcopied"></span></div>
+          <input type="text" id="gcode" readonly style="margin-top:8px">
+        </div>
+      </div>
+
+      <p class="osmcredit">Place search by <b>Nominatim</b> &#183; results &#169; OpenStreetMap contributors, ODbL</p>
+      <div id="gmapwrap"><div class="mapfail">Loading map&#8230;</div></div>
+    </div>
+  </details>
+</details>
+
+<details class="top">
+  <summary class="tophead"><h2>More data</h2><span class="note">the geography, the timing, and the odd fact</span><span class="chev" aria-hidden="true"></span></summary>
   <details class="sub">
     <summary class="sechead"><h2>Every day, everyone</h2><span class="note">170 puzzles &#183; click a name to show or hide it</span><span class="chev" aria-hidden="true"></span></summary>
     <div class="chartcard">
@@ -673,44 +1408,6 @@
     </div>
     <p class="method"><span>Read across a row for that player's record against each rival. <b>Gabe leads everyone except Brian</b>, who is 93&#8211;74 up on him. The most lopsided pairing on the board is Gabe over Brett, 122&#8211;41; the closest is Brett against Luke at 51&#8211;44. Danny's counts are small &#8212; he has only met each of them 27 times at most.</span></p>
   </details>
-</details>
-
-<details class="top" id="byo">
-  <summary class="tophead"><h2>Build your own</h2><span class="note">five places, any names you like</span><span class="chev" aria-hidden="true"></span></summary>
-  <details class="sub" id="game" open>
-    <summary class="sechead"><h2>Build your own round</h2><span class="note">five places, any names you like</span><span class="chev" aria-hidden="true"></span></summary>
-    <p class="lede" style="font-size:17px">Search for five real places, then relabel them however you like. Search handles the hard part &#8212; it knows Cairo in Egypt from Cairo in Illinois, finds &#8220;nile river&#8221; or &#8220;machu picchu&#8221; as happily as a city, and even resolves dead names: <b>&#8220;british honduras&#8221;</b> lands on Belize, <b>&#8220;upper volta&#8221;</b> on Burkina Faso. Pick the right match, then rewrite the label to whatever the guesser should see &#8212; a colonial name, a flag, a riddle. Hit <b>Share this round</b> and you get one link. Opening it drops straight into the round on its own page, nothing else around it.</p>
-
-
-    <div class="gamewin">
-      <div class="gwbar"><span class="gwdot"></span><span class="gwname">MAPTAP</span><span class="gwsub">round builder</span></div>
-      <div id="gbuild">
-        <div style="margin-bottom:12px"><input type="text" id="gtitle" maxlength="60" placeholder="Name your round &#8212; e.g. Brian&#8217;s Colonial Nonsense"></div>
-        <div id="growlist"></div>
-        <div class="gbar">
-          <button type="button" class="gbtn" id="gmake" disabled>Share this round</button>
-          <button type="button" class="gbtn ghost" id="gclear">Clear all</button>
-          <span class="ghint" id="gstatus">0 of 5 placed.</span>
-        </div>
-        <div class="glink" id="glinkwrap" hidden>
-          <p class="method" style="margin:2px 0 6px"><span>Send either one. The link opens the round directly; the code is for pasting into the box on the play page, which is how someone plays a second round without hunting for another link.</span></p>
-          <input type="text" id="glink" readonly>
-          <div class="gbar"><button type="button" class="gbtn ghost" id="gcopy">Copy link</button>
-            <button type="button" class="gbtn ghost" id="gcopycode">Copy code</button>
-            <span class="ghint" id="gcopied"></span></div>
-          <input type="text" id="gcode" readonly style="margin-top:8px">
-        </div>
-      </div>
-
-      <div id="gmapwrap"><div class="mapfail">Loading map&#8230;</div></div>
-    </div>
-    <p class="method"><span>The map shows the pins you have chosen and reframes itself as you add them. Place search is <b>Nominatim</b>, run by OpenStreetMap, throttled to one request a second as their usage policy asks; results are &#169; OpenStreetMap contributors, ODbL. If it is unreachable the row says so and you can click the map to drop that pin by hand instead. <b>Rounds 4 and 5 count triple</b>, so put the nasty ones there.</span></p>
-    <p class="method"><span><b>Accuracy</b> is distance only: 100 within 15km, then decaying smoothly &#8212; about 92 at 100km, 66 at 500km, 43 at 1,000km, near zero past 4,000km. <b>The multipliers are MapTap's real ones.</b> Fitting the group's 920 posted scores against their five round accuracies solves exactly, with no error on a single entry: the final is <span class="mono">1&times;R1 + 1&times;R2 + 2&times;R3 + 3&times;R4 + 3&times;R5</span>, out of 1000. The round-end emoji are derived the same way, from 4,605 real rounds. Whoever plays gets satellite imagery and can zoom to about a metre per pixel, so place your pins precisely.</span></p>
-  </details>
-</details>
-
-<details class="top">
-  <summary class="tophead"><h2>More data</h2><span class="note">the geography, the timing, and the odd fact</span><span class="chev" aria-hidden="true"></span></summary>
   <details class="sub">
     <summary class="sechead"><h2>Round 5 is the assassin</h2><span class="note">mean accuracy by round position</span><span class="chev" aria-hidden="true"></span></summary>
     <div class="chartcard">
@@ -1145,9 +1842,12 @@ const LBOUNDS={
 };
 function leafletReady(){
   if(!window.L || !window.topojson) return false;
-  // without leaflet.css the panes aren't positioned and tiles land in a vertical stack
+  // Without leaflet.css the panes aren't positioned and tiles land in a vertical stack.
+  // Do NOT pre-set position inline here: an inline style outranks the class rule, so the
+  // probe would read back "static" forever and the map would always fall back.
   const probe=document.createElement("div");
-  probe.className="leaflet-pane"; probe.style.cssText="position:static";
+  probe.className="leaflet-pane";
+  probe.style.cssText="visibility:hidden;width:0;height:0";
   document.body.appendChild(probe);
   const ok=getComputedStyle(probe).position==="absolute";
   probe.remove();
@@ -1541,6 +2241,43 @@ applyFocus();
     return o; }
   function encode(o){ return "2~"+b64url(mask(unescape(encodeURIComponent(pack(o))))); }
 
+  /* ---- opening a round someone sent ---- */
+  // Enough of play.html's decoder to validate before navigating, so a mistyped code
+  // says so here instead of bouncing the player to a dead page.
+  function unb64url(t){ t=t.replace(/-/g,"+").replace(/_/g,"/"); while(t.length%4) t+="="; return atob(t); }
+  function roundCode(raw){
+    var t=String(raw||"").trim();
+    if(!t) return null;
+    var h=t.indexOf("#");                       // a full link: take what follows the hash
+    if(h>=0) t=t.slice(h+1);
+    t=t.replace(/^p=/,"");
+    if(!/^[0-9A-Za-z~_-]+$/.test(t)) return null;
+    try{
+      var o;
+      if(t.slice(0,2)==="2~"){
+        var bin=unb64url(t.slice(2)), d="",i;
+        for(i=0;i<bin.length;i++) d+=String.fromCharCode(bin.charCodeAt(i)^MASK[i%MASK.length]);
+        var parts=decodeURIComponent(escape(d)).split(SEP);
+        o={t:parts.shift(), q:[]};
+        for(i=0;i+3<=parts.length;i+=3) o.q.push([parts[i],+parts[i+1],+parts[i+2]]);
+      } else {
+        o=JSON.parse(decodeURIComponent(escape(unb64url(t))));
+      }
+      if(!o||!o.q||!o.q.length) return null;
+      if(!o.q.every(function(r){ return r&&r.length>=3&&isFinite(r[1])&&isFinite(r[2]); })) return null;
+      return {code:t, o:o};
+    }catch(e){ return null; }
+  }
+  function openRound(){
+    var got=roundCode($("popen").value);
+    if(!got){ $("perr").textContent="That does not look like a round. Paste the whole link, or the code that starts 2~."; return; }
+    $("perr").textContent="Opening " + (got.o.t||"the round") + "\u2026";
+    location.href="play.html#"+got.code;
+  }
+  $("pgo").addEventListener("click", openRound);
+  $("popen").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); openRound(); } });
+  $("popen").addEventListener("input", function(){ $("perr").textContent=""; });
+
   /* ---- place search ---- */
   var lastQuery=0;
   function geocode(q){
@@ -1696,15 +2433,20 @@ applyFocus();
     $("glinkwrap").hidden=true; $("gcopied").textContent=""; $("gcode").value=""; $("glink").value="";
     refreshMarks(); save(); setActive(0); ROWEL[0].q.focus();
   });
+  var shareTitle="Custom round";
   $("gmake").addEventListener("click",function(){
     var o={t:($("gtitle").value||"Custom round").slice(0,60),
            q:rows.map(function(r){ return [String(r.n).trim().slice(0,70), r.lat, r.lon]; })};
     var code=encode(o);
+    shareTitle=o.t;
     $("glink").value=SITE+"play.html#"+code;
     $("gcode").value=code;
     $("glinkwrap").hidden=false; $("gcopied").textContent="";
     $("glink").focus(); $("glink").select();
   });
+  // What lands in the chat says what it is. "FAKE MAPTAP" matches the wording a finished
+  // round shares with, and is what the standings script skips on.
+  function labelled(body){ return "FAKE MAPTAP \u2014 "+shareTitle+"\n"+body; }
   function copyText(txt,what){
     var ok=false;
     try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt); ok=true; } }catch(e){}
@@ -1712,14 +2454,8 @@ applyFocus();
       t.select(); ok=document.execCommand("copy"); t.remove(); }catch(e){} }
     $("gcopied").textContent = ok ? (what+" copied, paste it in the chat.") : ("Select the "+what.toLowerCase()+" and copy it.");
   }
-  $("gcopycode").addEventListener("click",function(){ copyText($("gcode").value,"Code"); });
-  $("gcopy").addEventListener("click",function(){
-    var txt=$("glink").value, ok=false;
-    try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt); ok=true; } }catch(e){}
-    if(!ok){ try{ var t=document.createElement("textarea"); t.value=txt; document.body.appendChild(t);
-      t.select(); ok=document.execCommand("copy"); t.remove(); }catch(e){} }
-    $("gcopied").textContent = ok ? "Link copied, paste it in the chat." : "Select the link above and copy it.";
-  });
+  $("gcopycode").addEventListener("click",function(){ copyText(labelled($("gcode").value),"Code"); });
+  $("gcopy").addEventListener("click",function(){ copyText(labelled($("glink").value),"Link"); });
   function save(){ try{ localStorage.setItem("maptap-draft",JSON.stringify({t:$("gtitle").value,rows:rows})); }catch(e){} }
   function load(){
     try{ var d=JSON.parse(localStorage.getItem("maptap-draft")||"null");

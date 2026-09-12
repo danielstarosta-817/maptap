@@ -65,8 +65,16 @@ def read_chat(path):
     if cur:
         msgs.append(cur)
 
+    # Custom rounds built on the site are for fun and must never reach the standings.
+    # They already cannot: a score only counts when a "maptap.gg <Mon> <day>" header sits
+    # directly above it, and a custom round emits no such header. This is the second lock,
+    # so that loosening the parser later cannot quietly start counting them.
+    FAKE = re.compile(r"fake maptap|fake score:", re.I)
+
     seen, year = {}, None
     for m in msgs:
+        if FAKE.search(m["body"]):
+            continue
         lines = m["body"].split("\n")
         for i, line in enumerate(lines):
             hit = re.search(r"maptap\.gg\s+(\w+)\s+(\d+)\s*$", line.strip(), re.I)
