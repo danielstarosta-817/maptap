@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MapTap &#8212; custom round</title>
+<meta name="description" content="A custom five-place MapTap round.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20100%20100%27%3E%3Ctext%20y=%27.9em%27%20font-size=%2790%27%3E%F0%9F%97%BA%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<style>
+  /* This is a game screen, not a page of the site, so it commits to one look: MapTap's own.
+     Their stylesheet is #000011 ground, #44f8fb brand, #99f8fb muted, translucent slate cards. */
+  :root{
+    --paper:#000011; --raise:rgba(25,34,47,.62); --ink:#ffffff; --ink-2:#99f8fb; --ink-3:#6d8f99;
+    --contour:#1d3b44; --contour-2:#14262c; --accent:#44f8fb; --warm:#ff8a5c; --gold:#ffd166;
+    --sea:#000b18; color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0; height:100%}
+  [hidden]{display:none!important}
+  body{
+    background:var(--paper); color:var(--ink); overflow:hidden;
+    font-family:"Source Serif 4",Georgia,serif; -webkit-font-smoothing:antialiased;
+    display:flex; flex-direction:column; height:100dvh;
+  }
+  header{
+    padding:12px 16px calc(12px + env(safe-area-inset-top,0px));
+    border-bottom:1px solid rgba(68,248,251,.22);
+    background:
+      radial-gradient(700px 220px at 8% -40%, rgba(68,248,251,.12), transparent 60%),
+      rgba(0,0,17,.94);
+    display:flex; flex-wrap:wrap; gap:4px 16px; align-items:baseline; flex:none;
+  }
+  .wordmark{width:100%; display:flex; align-items:center; gap:8px; margin-bottom:2px;
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:600;
+    letter-spacing:.3em; color:#44f8fb}
+  .wordmark .dot{width:8px; height:8px; border-radius:50%; background:#44f8fb;
+    box-shadow:0 0 10px rgba(68,248,251,.9)}
+  .wordmark .tag{margin-left:auto; letter-spacing:.14em; text-transform:uppercase;
+    font-weight:400; color:#6d8f99}
+  .eyebrow{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-3)}
+  .eyebrow b{color:var(--accent); font-weight:600}
+  h1{font-family:Archivo,sans-serif; font-weight:800; letter-spacing:-.02em; margin:0;
+    font-size:clamp(19px,4.4vw,28px); line-height:1.12; width:100%}
+  #map{flex:1; min-height:0; background:var(--sea); cursor:crosshair}
+  #map.locked{cursor:default}
+  .leaflet-container{background:var(--sea); font-family:"IBM Plex Mono",monospace}
+  .leaflet-control-attribution{background:var(--raise)!important; color:var(--ink-3)!important;
+    font-family:"IBM Plex Mono",monospace!important; font-size:9px!important}
+  .leaflet-control-attribution a{color:var(--ink-2)!important}
+  footer{
+    flex:none; border-top:1px solid rgba(68,248,251,.22); background:rgba(0,0,17,.94);
+    padding:11px 16px calc(11px + env(safe-area-inset-bottom,0px));
+    display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; min-height:58px;
+  }
+  .hint{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-3)}
+  .fb{display:flex; flex-wrap:wrap; gap:6px 16px; align-items:baseline}
+  .fb .acc{font-family:Archivo,sans-serif; font-weight:800; font-size:30px; letter-spacing:-.02em;
+    line-height:1; color:#44f8fb}
+  .fb .det{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-2)}
+  .fb .quip{font-size:15px; font-style:italic; color:var(--ink); flex-basis:100%; margin-top:2px}
+  @media (min-width:760px){ .fb .quip{flex-basis:auto; margin-top:0} }
+  .btn{
+    font:inherit; cursor:pointer; font-family:Archivo,sans-serif; font-weight:700; font-size:14.5px;
+    padding:10px 20px; border-radius:100px; border:1px solid #44f8fb; background:#44f8fb;
+    color:#00131a; margin-left:auto;
+  }
+  .btn.ghost{background:transparent; color:#99f8fb; border-color:#1d3b44; margin-left:0}
+  .btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  .pin{width:16px; height:16px; border-radius:50%; border:2.5px solid #fff;
+    box-shadow:0 0 0 1px rgba(16,24,20,.5), 0 2px 6px rgba(0,0,0,.45)}
+  .pin.guess{background:#44f8fb}
+  .pin.answer{background:var(--gold)}
+  .alabel{font-family:Archivo,sans-serif; font-weight:700; font-size:12px; color:#fff; white-space:nowrap;
+    text-shadow:0 0 3px rgba(16,24,20,.95),0 1px 2px rgba(16,24,20,.9); transform:translate(-50%,-170%)}
+  /* results */
+  #done{position:absolute; inset:0; z-index:1100; background:var(--paper); overflow:auto; padding:26px 18px 40px;
+    display:flex; justify-content:center}
+  .sheet{width:100%; max-width:560px}
+  .sheet h2{font-family:Archivo,sans-serif; font-weight:800; font-size:clamp(24px,6vw,34px);
+    letter-spacing:-.025em; margin:0 0 4px}
+  .total{display:flex; align-items:baseline; gap:10px; margin:18px 0 4px}
+  .total .n{font-family:Archivo,sans-serif; font-weight:800; font-size:52px; letter-spacing:-.03em;
+    line-height:1; color:#44f8fb}
+  .total .o{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-3)}
+  .rows{display:grid; gap:1px; background:var(--contour-2); border:1px solid var(--contour);
+    border-radius:4px; margin:16px 0}
+  .rows div{background:var(--raise); padding:10px 13px; display:flex; gap:12px; align-items:baseline;
+    justify-content:space-between}
+  .rows .nm{font-size:15px}
+  .rows .sc{font-family:"IBM Plex Mono",monospace; font-size:13px; white-space:nowrap}
+  .rows .sc .km{color:var(--ink-3)}
+  pre{font-family:"IBM Plex Mono",monospace; font-size:13.5px; line-height:1.75; white-space:pre-wrap;
+    background:var(--raise); border:1px solid var(--contour); border-radius:4px; padding:14px; margin:0}
+  .bar{display:flex; flex-wrap:wrap; gap:9px; align-items:center; margin-top:12px}
+  .said{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--accent)}
+  a.back{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-3)}
+  #entry{position:absolute; inset:0; z-index:1100; background:var(--paper); overflow:auto; padding:30px 18px 40px;
+    display:flex; justify-content:center}
+  #entry .lede{color:var(--ink-2); font-size:16px; margin:0 0 14px}
+  #entry textarea{
+    font:inherit; font-family:"IBM Plex Mono",monospace; font-size:12px; width:100%; resize:vertical;
+    background:var(--raise); color:var(--ink); border:1px solid var(--contour); border-radius:4px;
+    padding:11px 12px; word-break:break-all;
+  }
+  #entry textarea:focus{outline:2px solid var(--accent); outline-offset:1px}
+  /* ---- the opening: five pins, one ball, no dignity ----------------------
+     Plays once when a round opens. Five pins because five rounds. It is decoration,
+     so it is skippable by tapping, it never blocks input for long, and under
+     reduced-motion it does not run at all. */
+  #intro{
+    position:absolute; inset:0; z-index:1200; background:#000011; overflow:hidden;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    animation:introout .34s ease-in 1.52s both;
+  }
+  #intro .alley{position:relative; width:min(300px,74vw); height:min(380px,58vh)}
+  /* the lane: a trapezoid, narrow end away from you */
+  #intro .lane{
+    position:absolute; left:0; right:0; top:8%; bottom:0;
+    clip-path:polygon(31% 0, 69% 0, 100% 100%, 0 100%);
+    background:
+      repeating-linear-gradient(90deg, rgba(68,248,251,.10) 0 1px, transparent 1px 12.5%),
+      linear-gradient(180deg, #06202a 0%, #0a2e3a 55%, #10404f 100%);
+    box-shadow:inset 0 0 60px rgba(0,0,17,.85);
+  }
+  #intro .pins{position:absolute; left:0; right:0; top:6%; height:16%;
+    display:flex; align-items:flex-end; justify-content:center; gap:5px}
+  #intro .pins i{
+    display:block; width:9px; height:22px; border-radius:46% 46% 30% 30%;
+    background:linear-gradient(180deg,#ffffff,#cfeef2 62%,#8fd6db);
+    box-shadow:0 0 9px rgba(68,248,251,.5); position:relative;
+    animation:pinfall .5s cubic-bezier(.3,-0.4,.6,1.4) .92s both;
+  }
+  #intro .pins i::after{content:""; position:absolute; left:0; right:0; top:7px; height:3px;
+    background:#ff8a5c; opacity:.85}
+  /* each pin takes it differently */
+  #intro .pins i:nth-child(1){--tx:-46px; --tr:-104deg; --ty:-16px}
+  #intro .pins i:nth-child(2){--tx:-21px; --tr:-58deg;  --ty:-30px}
+  #intro .pins i:nth-child(3){--tx:2px;   --tr:16deg;   --ty:-40px}
+  #intro .pins i:nth-child(4){--tx:24px;  --tr:71deg;   --ty:-27px}
+  #intro .pins i:nth-child(5){--tx:49px;  --tr:118deg;  --ty:-13px}
+  #intro .ball{
+    position:absolute; left:50%; bottom:2%; width:46px; height:46px; margin-left:-23px;
+    border-radius:50%; background:radial-gradient(circle at 34% 30%, #7dfcff, #44f8fb 42%, #0e6b78 100%);
+    box-shadow:0 0 22px rgba(68,248,251,.55);
+    animation:roll .92s cubic-bezier(.42,.03,.78,.72) both;
+  }
+  #intro .ball::before, #intro .ball::after{content:""; position:absolute; border-radius:50%;
+    background:#001018; opacity:.72}
+  #intro .ball::before{width:7px; height:7px; left:14px; top:11px;
+    box-shadow:11px -1px 0 #001018}
+  #intro .ball::after{width:7px; height:7px; left:19px; top:23px}
+  #intro .strike{
+    position:absolute; left:0; right:0; top:26%; text-align:center;
+    font-family:Archivo,sans-serif; font-weight:800; font-size:clamp(26px,8vw,44px);
+    letter-spacing:-.03em; color:#fff; text-shadow:0 0 26px rgba(68,248,251,.85);
+    animation:pop .44s cubic-bezier(.2,1.7,.4,1) 1.02s both;
+  }
+  #intro .strike span{display:block; font-family:"IBM Plex Mono",monospace; font-weight:500;
+    font-size:11px; letter-spacing:.3em; color:#44f8fb; margin-top:6px}
+  #intro .skip{position:absolute; left:0; right:0; bottom:14px; text-align:center;
+    font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:#3d5b64}
+  @keyframes roll{
+    0%  {transform:translateY(0) scale(1) rotate(0deg)}
+    100%{transform:translateY(calc(-1 * min(300px,52vh))) scale(.26) rotate(710deg)}
+  }
+  @keyframes pinfall{
+    0%  {transform:none; opacity:1}
+    100%{transform:translate(var(--tx),var(--ty)) rotate(var(--tr)); opacity:0}
+  }
+  @keyframes pop{
+    0%  {transform:scale(.5); opacity:0}
+    100%{transform:scale(1);  opacity:1}
+  }
+  @keyframes introout{to{opacity:0; visibility:hidden}}
+  @media (prefers-reduced-motion:reduce){
+    #intro{display:none!important}
+  }
+
+  /* ---------------------------------------------------------------- mobile ----
+     The layout is already a flex column at 100dvh with safe-area padding; what small
+     screens need is thumb-sized buttons and a footer that does not steal the map. */
+  html{-webkit-text-size-adjust:100%}
+  .btn{min-height:44px}
+  @media (max-width:560px){
+    header{padding:10px 13px calc(10px + env(safe-area-inset-top,0px)); gap:3px 12px}
+    footer{padding:9px 13px calc(9px + env(safe-area-inset-bottom,0px)); gap:7px 13px}
+    .wordmark{font-size:10.5px; letter-spacing:.22em}
+    .fb{flex:1; min-width:0}
+    .fb .acc{font-size:26px}
+    .fb .det{font-size:11px}
+    .fb .quip{font-size:14px; line-height:1.3}
+    .btn{font-size:14px; padding:10px 17px}
+    #next{margin-left:auto; flex:none}
+    #done, #entry{padding:22px 15px 36px}
+    .total .n{font-size:44px}
+    .rows div{padding:9px 11px; gap:9px}
+    .rows .nm{font-size:14px}
+    .rows .sc{font-size:12px}
+    pre{font-size:12.5px; padding:12px}
+    .bar .btn{flex:1 1 auto}
+    #entry textarea{font-size:16px}     /* 16px or iOS zooms the whole page in */
+  }
+  /* phone held sideways: the chrome has to give the map room */
+  @media (max-height:480px) and (orientation:landscape){
+    .wordmark{display:none}
+    header{padding:7px 13px calc(7px + env(safe-area-inset-top,0px))}
+    footer{min-height:0; padding:7px 13px calc(7px + env(safe-area-inset-bottom,0px))}
+    .fb .acc{font-size:21px}
+    .fb .quip{flex-basis:auto; margin-top:0}
+    #intro .alley{height:74vh}
+  }
+
+  .fail{padding:40px 20px; text-align:center; font-family:"IBM Plex Mono",monospace;
+    font-size:13px; color:var(--ink-3)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark"><span class="dot"></span>MAPTAP<span class="tag">custom round</span></div>
+  <h1 id="prompt">Loading round&#8230;</h1>
+  <span class="eyebrow" id="meta"></span>
+</header>
+
+<div id="map"></div>
+
+<footer>
+  <span class="hint" id="hint">Tap the map to drop your pin. Wherever you tap is your answer.</span>
+  <span class="fb" id="fb" hidden>
+    <span class="acc" id="acc"></span>
+    <span class="det" id="det"></span>
+    <span class="quip" id="quip"></span>
+  </span>
+  <button type="button" class="btn" id="next" hidden>Next round</button>
+</footer>
+
+<div id="intro" hidden>
+  <div class="alley">
+    <div class="lane"></div>
+    <div class="pins"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="ball"></div>
+    <div class="strike">STRIKE<span>five pins, five rounds</span></div>
+    <div class="skip">tap to skip</div>
+  </div>
+</div>
+
+<div id="entry" hidden>
+  <div class="sheet">
+    <h2>Play a round</h2>
+    <p class="lede">Paste a round code, or the link someone sent you.</p>
+    <textarea id="code" rows="4" placeholder="Paste the code or link here"></textarea>
+    <div class="bar">
+      <button type="button" class="btn" id="start" style="margin-left:0">Start round</button>
+      <span class="said" id="entryerr"></span>
+    </div>
+    <p style="margin-top:22px"><a class="back" href="./">&#8592; the standings, and build your own</a></p>
+  </div>
+</div>
+
+<div id="done" hidden>
+  <div class="sheet">
+    <h2 id="dtitle"></h2>
+    <span class="eyebrow">your round</span>
+    <div class="total"><span class="n" id="dtotal"></span><span class="o">out of 1000</span></div>
+    <div class="rows" id="drows"></div>
+    <pre id="share"></pre>
+    <div class="bar">
+      <button type="button" class="btn" id="copy" style="margin-left:0">Copy result</button>
+      <button type="button" class="btn ghost" id="again">Play again</button>
+      <button type="button" class="btn ghost" id="another">Play another</button>
+      <span class="said" id="said"></span>
+    </div>
+    <p style="margin-top:22px"><a class="back" href="./">&#8592; the standings, and build your own</a></p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+
+  /* ---- scoring, matching the real game ---- */
+  var MULT=[1,1,2,3,3];
+  // Emoji derived from 4,605 real rounds in the group chat: the modal emoji per score,
+  // which reproduces 81% of posted ones exactly (MapTap varies the rest at random).
+  var EMO=["\u{1F92E}","\u{1F62D}","\u{1F62D}","\u{1F92E}","\u{1F92E}","\u{1F62D}","\u{1F62D}","\u{1F62D}","\u{1F922}","\u{1F922}","\u{1F922}","\u{1F61D}","\u{1F61D}","\u{1F635}","\u{1F635}","\u{1F635}","\u{1F92C}","\u{1F97A}","\u{1F97A}","\u{1F97A}","\u{1F9CA}","\u{1F612}","\u{1F612}","\u2744","\u2744","\u2744","\u2744","\u{1F625}","\u{1F625}","\u{1F648}","\u{1F648}","\u{1F62A}","\u{1F62A}","\u{1F634}","\u{1F634}","\u{1F625}","\u{1F976}","\u{1F636}","\u{1F636}","\u{1F615}","\u{1F615}","\u{1F615}","\u{1F61E}","\u{1F61E}","\u{1F628}","\u{1F628}","\u{1F61F}","\u{1F61F}","\u{1F61F}","\u{1FAE3}","\u{1FAE3}","\u{1F614}","\u{1F614}","\u{1F92B}","\u{1F92B}","\u{1F928}","\u{1F928}","\u{1F611}","\u{1F611}","\u{1F610}","\u{1F928}","\u{1F611}","\u{1FAE2}","\u{1FAE2}","\u{1F610}","\u{1F643}","\u{1F642}","\u{1F642}","\u{1F601}","\u{1F601}","\u{1F602}","\u{1F602}","\u{1F917}","\u{1F917}","\u{1F31E}","\u{1F31E}","\u{1F917}","\u{1F44F}","\u{1F31E}","\u2728","\u2728","\u{1F31F}","\u{1F31F}","\u{1F601}","\u{1F601}","\u{1F393}","\u{1F393}","\u{1F393}","\u{1F389}","\u{1F389}","\u{1F451}","\u{1F451}","\u{1F3C6}","\u{1F3C6}","\u{1F3C5}","\u{1F3C5}","\u{1F525}","\u{1F525}","\u{1F3AF}","\u{1F3AF}","\u{1F3AF}"];
+  // Tongue in cheek, in the register of the group chat: mock the guess, never the guesser.
+  var QUIP=[
+   [95,["Nailed it. Nobody has ever been impressed by this.",
+        "Bullseye. When the robots eat your face, this will not help you.",
+        "Perfect. You live in a crumbling empire, but you know where that is.",
+        "Dead on. Consider, quietly, how many hours this has taken.",
+        "Immaculate. Still cannot parallel park, though.",
+        "Exactly right. Somewhere a cartographer feels absolutely nothing.",
+        "Spot on. This is the peak. It is downhill from here."]],
+   [85,["Close enough. Nobody is clapping.",
+        "Respectable. Profoundly, forgettably respectable.",
+        "Good. Not good enough to say out loud, but good.",
+        "Nearly. Which in life counts for nothing.",
+        "Fine work. The void remains unmoved.",
+        "Tidy. Your parents still do not understand what you do."]],
+   [70,["Roughly right, in the way a weather forecast is roughly right.",
+        "You were in the area, like a tourist on the wrong bus.",
+        "Adequate. The word people use about lukewarm soup.",
+        "Not bad, not good, not memorable.",
+        "You got the continent. Gold star, sort of.",
+        "Fine. Genuinely fine. That is the whole review."]],
+   [50,["That is a guess wearing the costume of an answer.",
+        "You have heard of maps. That much is clear.",
+        "Halfway there, which is another way of saying halfway wrong.",
+        "Bold. Wrong, but bold.",
+        "You pointed at the Earth. Technically a start.",
+        "The confidence was there. Only the confidence."]],
+   [25,["Man, you suck at this. That is really terrible.",
+        "That is quite far. Embarrassingly, memorably far.",
+        "You have confidently identified the wrong bit of the planet.",
+        "Somewhere a geography teacher felt a chill and did not know why.",
+        "This is the kind of answer that ends friendships.",
+        "Were you aiming? Was there aiming involved?"]],
+   [0, ["Absolute turd.",
+        "You have discovered a new place. It is not the right one.",
+        "Magellan died for this.",
+        "Genuinely impressive, in entirely the wrong direction.",
+        "Did you tap with your elbow?",
+        "That is not a guess, that is a cry for help.",
+        "You were closer before you tapped."]]
+  ];
+  function quip(acc){
+    for(var i=0;i<QUIP.length;i++) if(acc>=QUIP[i][0]){
+      var list=QUIP[i][1]; return list[Math.floor(Math.random()*list.length)];
+    }
+    return "";
+  }
+  function accuracy(km){ return km<=15 ? 100 : Math.max(0, Math.round(100*Math.exp(-km/1200))); }
+  function haversine(a,b,c,d){
+    var p=Math.PI/180, dla=(c-a)*p, dlo=(d-b)*p;
+    var h=Math.pow(Math.sin(dla/2),2)+Math.cos(a*p)*Math.cos(c*p)*Math.pow(Math.sin(dlo/2),2);
+    return 2*6371*Math.asin(Math.min(1,Math.sqrt(h)));
+  }
+
+  /* ---- the round travels inside the link ---- */
+  var MASK=[0x6d,0x61,0x70,0x74,0x61,0x70,0x37,0xab,0x1f,0xc4,0x53,0x9e], SEP="\u0001";
+  function unb64url(t){ t=t.replace(/-/g,"+").replace(/_/g,"/"); while(t.length%4) t+="="; return atob(t); }
+  function mask(bin){ var o="",i;
+    for(i=0;i<bin.length;i++) o+=String.fromCharCode(bin.charCodeAt(i)^MASK[i%MASK.length]);
+    return o; }
+  function unpack(str){ var p=str.split(SEP), t=p.shift(), q=[], i;
+    for(i=0;i+3<=p.length;i+=3) q.push([p[i],+p[i+1],+p[i+2]]);
+    return {t:t,q:q}; }
+  function decode(t){
+    t=String(t||"").trim().replace(/^#/,"").replace(/^p=/,"");
+    if(t.slice(0,2)==="2~") return unpack(decodeURIComponent(escape(mask(unb64url(t.slice(2))))));
+    return JSON.parse(decodeURIComponent(escape(unb64url(t))));
+  }
+
+  var P=null, ri=0, results=[], map=null, guessLayer=null, locked=false;
+
+  function fail(msg){
+    $("map").innerHTML='<div class="fail">'+msg+'</div>';
+    $("prompt").textContent="Round unavailable";
+    $("hint").textContent="";
+  }
+  function parse(src){
+    var o=decode(src);
+    if(!o||!o.q||!o.q.length) throw new Error("empty");
+    o.q=o.q.filter(function(r){return r&&r.length>=3&&isFinite(r[1])&&isFinite(r[2])});
+    if(!o.q.length) throw new Error("empty");
+    return o;
+  }
+  function showEntry(msg){
+    $("entry").hidden=false; $("done").hidden=true;
+    $("entryerr").textContent=msg||"";
+    $("prompt").textContent="Paste a round to begin";
+    $("meta").textContent=""; $("hint").textContent=""; $("fb").hidden=true; $("next").hidden=true;
+  }
+  // The opening. Decoration only: it is removed on tap, on the animation ending, and by a
+  // timer that outlives the animation, so a dropped animationend can never strand the screen.
+  var introDone=false;
+  function intro(){
+    var el=$("intro");
+    if(!el) return;
+    if(window.matchMedia && matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+    introDone=false;
+    // restart cleanly if a second round is opened in the same visit
+    el.hidden=false; el.style.display=""; void el.offsetWidth;
+    var kill=function(){
+      if(introDone) return;
+      introDone=true;
+      el.hidden=true;
+      try{ map.invalidateSize(); }catch(e){}
+    };
+    el.addEventListener("click", kill, {once:true});
+    el.addEventListener("animationend", function(e){ if(e.animationName==="introout") kill(); });
+    setTimeout(kill, 2400);
+  }
+
+  function begin(o){
+    P=o; ri=0; results=[];
+    document.title=(P.t||"Custom round")+" \u2014 MapTap";
+    $("entry").hidden=true; $("done").hidden=true; $("said").textContent="";
+    startRound();
+    intro();
+    setTimeout(function(){ try{map.invalidateSize()}catch(e){} },40);
+  }
+
+  if(!window.L){ fail("The map library could not load, so this round cannot be played here."); return; }
+  map=L.map("map",{zoomControl:true, worldCopyJump:true, minZoom:2, maxZoom:19,
+                   attributionControl:true});
+  // Imagery rather than a labelled map: labels would hand over the answer.
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {maxZoom:19, attribution:"Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics"}).addTo(map);
+  guessLayer=L.layerGroup().addTo(map);
+
+  function startRound(){
+    if(!P) return;
+    locked=false;
+    $("map").classList.remove("locked");
+    guessLayer.clearLayers();
+    $("fb").hidden=true; $("next").hidden=true;
+    $("hint").hidden=false;
+    $("hint").textContent="Tap the map to drop your pin. Wherever you tap is your answer.";
+    $("prompt").textContent=P.q[ri][0];
+    $("meta").innerHTML="Round "+(ri+1)+" of "+P.q.length+" &middot; <b>&times;"+(MULT[ri]||1)+"</b>"
+      +(P.t?" &middot; "+String(P.t).replace(/</g,"&lt;"):"");
+    map.setView([20,0],2);
+  }
+  function pin(lat,lng,cls,label){
+    var m=L.marker([lat,lng],{interactive:false,
+      icon:L.divIcon({className:"",html:'<div class="pin '+cls+'"></div>',iconSize:[16,16],iconAnchor:[8,8]})});
+    guessLayer.addLayer(m);
+    if(label) guessLayer.addLayer(L.marker([lat,lng],{interactive:false,
+      icon:L.divIcon({className:"",html:'<div class="alabel">'+label+'</div>',iconSize:null})}));
+  }
+  map.on("click", function(e){
+    if(locked||!P||!$("entry").hidden||!$("done").hidden) return;
+    locked=true;                                   // wherever you tap is the answer, like the real game
+    $("map").classList.add("locked");
+    var q=P.q[ri];
+    var km=haversine(e.latlng.lat, e.latlng.lng, q[1], q[2]);
+    var acc=accuracy(km), mx=MULT[ri]||1;
+    results.push({n:q[0], km:km, acc:acc, m:mx, pts:acc*mx});
+    pin(e.latlng.lat, e.latlng.lng, "guess");
+    pin(q[1], q[2], "answer", "answer");
+    guessLayer.addLayer(L.polyline([[e.latlng.lat,e.latlng.lng],[q[1],q[2]]],
+      {color:getComputedStyle(document.body).getPropertyValue("--gold").trim()||"#A9812A",
+       weight:2, dashArray:"5 4", interactive:false}));
+    try{ map.fitBounds(L.latLngBounds([[e.latlng.lat,e.latlng.lng],[q[1],q[2]]]).pad(0.35)); }catch(err){}
+    $("acc").textContent=acc;
+    $("det").innerHTML=(km<1?"under 1":Math.round(km).toLocaleString())+" km away &nbsp;&middot;&nbsp; &times;"
+      +mx+" = "+(acc*mx)+" points";
+    $("quip").textContent=quip(acc);
+    $("hint").hidden=true; $("fb").hidden=false;
+    $("next").hidden=false;
+    $("next").textContent = ri<P.q.length-1 ? "Next round" : "See your score";
+  });
+  $("next").addEventListener("click", function(){
+    if(ri<P.q.length-1){ ri++; startRound(); } else finish();
+  });
+
+  function finish(){
+    var tot=results.reduce(function(a,b){return a+b.pts},0);
+    $("dtitle").textContent=P.t||"Custom round";
+    $("dtotal").textContent=tot;
+    $("drows").innerHTML=results.map(function(r,i){
+      return '<div><span class="nm">'+(i+1)+". "+String(r.n).replace(/</g,"&lt;")+'</span>'
+        +'<span class="sc">'+r.acc+EMO[r.acc]+' <span class="km">&times;'+r.m+" = "+r.pts+"</span>"
+        +' <span class="km">'+(r.km<1?"<1":Math.round(r.km).toLocaleString())+" km</span></span></div>";
+    }).join("");
+    $("share").textContent=(P.t||"Custom round")+"\n"
+      +results.map(function(r){return r.acc+EMO[r.acc]}).join(" ")+"\n"
+      +"Final score: "+tot;
+    $("done").hidden=false;
+  }
+  $("copy").addEventListener("click", function(){
+    var txt=$("share").textContent, ok=false;
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt); ok=true; } }catch(e){}
+    if(!ok){ try{ var t=document.createElement("textarea"); t.value=txt; document.body.appendChild(t);
+      t.select(); ok=document.execCommand("copy"); t.remove(); }catch(e){} }
+    $("said").textContent = ok ? "Copied \u2014 paste it in the chat." : "Select the text above and copy it.";
+  });
+  $("again").addEventListener("click", function(){
+    ri=0; results=[]; $("done").hidden=true; $("said").textContent=""; startRound();
+  });
+
+  $("start").addEventListener("click",function(){
+    var v=$("code").value.trim();
+    if(!v){ $("entryerr").textContent="Paste a code or a link first."; return; }
+    try{ begin(parse(v)); }
+    catch(e){ $("entryerr").textContent="That is not a round code."; }
+  });
+  $("code").addEventListener("keydown",function(e){
+    if(e.key==="Enter"&&(e.metaKey||e.ctrlKey)) $("start").click();
+  });
+  $("another").addEventListener("click",function(){
+    $("code").value=""; showEntry(""); $("code").focus();
+  });
+
+  // a link carrying a round starts straight away; otherwise ask for one
+  if(/[0-9A-Za-z~_-]{16,}/.test(location.hash||"")){
+    try{ begin(parse(location.hash)); }
+    catch(e){ showEntry("That link does not contain a round. Paste a code instead."); }
+  } else {
+    showEntry("");
+  }
+})();
+</script>
+</body>
+</html>

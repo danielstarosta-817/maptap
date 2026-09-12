@@ -1,0 +1,46 @@
+name: Mirror MapTap's archive
+
+# The daily puzzle's locations and MapTap's own player averages are published after each
+# day ends, so this runs a little after that and only fetches dates it does not already
+# have. Steady state is one or two requests a day.
+on:
+  schedule:
+    - cron: "40 19 * * *"     # 19:40 UTC, after the day's world sample is generated
+  workflow_dispatch:
+    inputs:
+      max:
+        description: "Most dates to fetch in this run (raise it to backfill faster)"
+        required: false
+        default: "60"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: archive
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch any missing dates
+        run: python3 scripts/update_archive.py --max "${{ github.event.inputs.max || 60 }}"
+
+      - name: Commit if anything changed
+        run: |
+          if git diff --quiet -- data/archive.json data/world.json; then
+            echo "nothing new"
+            exit 0
+          fi
+          git config user.name  "maptap-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/archive.json data/world.json
+          git commit -m "archive: $(date -u +%Y-%m-%d)"
+          git push

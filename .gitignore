@@ -5,3 +5,5 @@ node_modules/
 
 # Raw group chat export — private, not for a public Pages repo
 whatsapp_chat/
+__pycache__/
+*.pyc
