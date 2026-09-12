@@ -765,6 +765,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     line-height:1; color:var(--ink); background:var(--accent-dim); border:1px solid var(--accent);
     border-radius:100px; padding:5px 12px; white-space:nowrap}
   .fb .det{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-3)}
+  .fb .det b{color:var(--ink); font-weight:600}
   .fb .quip{font-size:15px; font-style:italic; color:var(--ink); flex-basis:100%; margin-top:2px}
   @media (min-width:760px){ .fb .quip{flex-basis:auto; margin-top:0} }
   /* Rounds advance on their own, so this shows how long you have to look. */
@@ -810,6 +811,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .rows div{background:var(--raise); padding:10px 13px; display:flex; gap:12px; align-items:baseline;
     justify-content:space-between}
   .rows .nm{font-size:15px}
+  .rows .was{color:var(--ink-3); font-family:"IBM Plex Mono",monospace; font-size:12px}
   .rows .sc{font-family:"IBM Plex Mono",monospace; font-size:13px; white-space:nowrap}
   .rows .sc .km{color:var(--ink-3)}
   pre{font-family:"IBM Plex Mono",monospace; font-size:13.5px; line-height:1.75; white-space:pre-wrap;
@@ -1050,6 +1052,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
     {maxZoom:19, attribution:"Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics"}).addTo(map);
   guessLayer=L.layerGroup().addTo(map);
 
+  // A place name may carry an optional reveal after \u0002: "<what you are shown>\u0002<what it was>".
+  // Used by the flags round, where the prompt is only a flag and the answer would otherwise
+  // never be named. Names without the marker are returned unchanged, so old links still work.
+  var REV="\u0002";
+  function asked(n){ n=String(n); var i=n.indexOf(REV); return i<0?n:n.slice(0,i); }
+  function reveal(n){ n=String(n); var i=n.indexOf(REV); return i<0?"":n.slice(i+REV.length); }
+
   // MapTap labels each round by its multiplier and tints the banner to match.
   var BAND={1:["Easy","#3f5a3c","#d3e5cb"], 2:["Medium","#5e5330","#ece0bf"], 3:["Hard","#653b30","#f0d4c9"]};
   var running=0;
@@ -1092,7 +1101,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     // .ask is a flex container: a bare text node and the <b> become separate flex
     // items and the space between them is dropped. Keep it all in one child.
     $("prompt").innerHTML="<span>Tap as close as you can to <b>"
-      +String(P.q[ri][0]).replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</b></span>";
+      +asked(P.q[ri][0]).replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</b></span>";
     setBanner(MULT[ri]||1);
     $("gtitle").textContent=(P.t||"Custom round")+"  #"+(ri+1)+"/"+P.q.length;
     map.setView([20,0],2);
@@ -1113,7 +1122,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     var acc=accuracy(km), mx=MULT[ri]||1;
     results.push({n:q[0], km:km, acc:acc, m:mx, pts:acc*mx});
     pin(e.latlng.lat, e.latlng.lng, "guess");
-    pin(q[1], q[2], "answer", "answer");
+    pin(q[1], q[2], "answer", reveal(q[0]) || "answer");
     guessLayer.addLayer(L.polyline([[e.latlng.lat,e.latlng.lng],[q[1],q[2]]],
       {color:getComputedStyle(document.body).getPropertyValue("--gold").trim()||"#A9812A",
        weight:2, dashArray:"5 4", interactive:false}));
@@ -1121,7 +1130,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
     setScore(running + acc*mx);
     $("acc").textContent=acc;
     $("pts").textContent="+"+(acc*mx)+(acc*mx===1?" pt":" pts");
-    $("det").innerHTML=(km<1?"under 1":Math.round(km).toLocaleString())+" km away &nbsp;&middot;&nbsp; &times;"+mx;
+    var was=reveal(q[0]);
+    $("det").innerHTML=(was?"<b>"+was.replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</b> &nbsp;&middot;&nbsp; ":"")
+      +(km<1?"under 1":Math.round(km).toLocaleString())+" km away &nbsp;&middot;&nbsp; &times;"+mx;
     $("quip").textContent=quip(acc);
     $("hint").hidden=true; $("fb").hidden=false;
     runBeat(function(){
@@ -1135,7 +1146,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
     $("dtitle").textContent=P.t||"Custom round";
     $("dtotal").textContent=tot;
     $("drows").innerHTML=results.map(function(r,i){
-      return '<div><span class="nm">'+(i+1)+". "+String(r.n).replace(/</g,"&lt;")+'</span>'
+      var lab=asked(r.n), was=reveal(r.n);
+      return '<div><span class="nm">'+(i+1)+". "+lab.replace(/</g,"&lt;")
+        +(was?' <span class="was">'+was.replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</span>":"")+'</span>'
         +'<span class="sc">'+r.acc+EMO[r.acc]+' <span class="km">&times;'+r.m+" = "+r.pts+"</span>"
         +' <span class="km">'+(r.km<1?"<1":Math.round(r.km).toLocaleString())+" km</span></span></div>";
     }).join("");
