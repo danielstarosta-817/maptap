@@ -8,17 +8,685 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20100%20100%27%3E%3Ctext%20y=%27.9em%27%20font-size=%2790%27%3E%F0%9F%97%BA%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+/* Leaflet 1.9.4 stylesheet, inlined verbatim. (c) 2010-2023 Volodymyr Agafonkin,
+   (c) 2010-2011 CloudMade. BSD-2-Clause. https://leafletjs.com
+   Inlined rather than linked because without it the map panes are unpositioned and the
+   map collapses to nothing -- and a linked stylesheet is exactly what a strict CSP blocks.
+   The three url() references it carries are for the layers control and the default marker
+   icon; this page uses neither, so nothing is fetched. */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+.leaflet-tile::selection {
+	background: transparent;
+}
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	behavior: url(#default#VML);
+	display: inline-block;
+	position: absolute;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted;
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted;
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-image: url(images/layers-2x.png);
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path {
+	background-image: url(images/marker-icon.png);
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <style>
-  /* This is a game screen, not a page of the site, so it commits to one look: MapTap's own.
-     Their stylesheet is #000011 ground, #44f8fb brand, #99f8fb muted, translucent slate cards. */
+  /* MapTap's own furniture -- top bar, score box, multiplier banner, prompt panel --
+     but in a muted register: deep teal instead of electric cyan, moss instead of
+     highlighter green. Same shapes, lower volume. */
   :root{
-    --paper:#000011; --raise:rgba(25,34,47,.62); --ink:#ffffff; --ink-2:#99f8fb; --ink-3:#6d8f99;
-    --contour:#1d3b44; --contour-2:#14262c; --accent:#44f8fb; --warm:#ff8a5c; --gold:#ffd166;
-    --sea:#000b18; color-scheme:dark;
+    --paper:#070d13;          /* space, near black with a blue cast */
+    --raise:#111c24;
+    --ink:#e7eef0; --ink-2:#9fb6bb; --ink-3:#65818a;
+    --line:#22343c; --line-2:#18272e;
+    --bar:#1b3f47;            /* the header bar, a deep teal */
+    --bar-ink:#cfe9ec;
+    --accent:#63b3bb;         /* muted teal, used sparingly */
+    --accent-dim:#2d5a62;
+    --gold:#c9a227; --warm:#c2714e;
+    --sea:#050a10;
+    --m-bg:#3f5a3c; --m-ink:#d3e5cb;   /* multiplier banner, recoloured per round */
+    color-scheme:dark;
   }
   *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
   html,body{margin:0; height:100%}
   [hidden]{display:none!important}
   body{
@@ -26,68 +694,107 @@
     font-family:"Source Serif 4",Georgia,serif; -webkit-font-smoothing:antialiased;
     display:flex; flex-direction:column; height:100dvh;
   }
-  header{
-    padding:12px 16px calc(12px + env(safe-area-inset-top,0px));
-    border-bottom:1px solid rgba(68,248,251,.22);
-    background:
-      radial-gradient(700px 220px at 8% -40%, rgba(68,248,251,.12), transparent 60%),
-      rgba(0,0,17,.94);
-    display:flex; flex-wrap:wrap; gap:4px 16px; align-items:baseline; flex:none;
+
+  /* ---- header: title bar, then score box beside the prompt panel ---- */
+  header{flex:none; padding-top:env(safe-area-inset-top,0px); background:var(--paper)}
+  .topbar{
+    display:flex; align-items:center; gap:10px; background:var(--bar); color:var(--bar-ink);
+    padding:7px 12px; font-family:Archivo,sans-serif; font-weight:700; font-size:14px;
+    border-bottom:1px solid #0d2227;
   }
-  .wordmark{width:100%; display:flex; align-items:center; gap:8px; margin-bottom:2px;
-    font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:600;
-    letter-spacing:.3em; color:#44f8fb}
-  .wordmark .dot{width:8px; height:8px; border-radius:50%; background:#44f8fb;
-    box-shadow:0 0 10px rgba(68,248,251,.9)}
-  .wordmark .tag{margin-left:auto; letter-spacing:.14em; text-transform:uppercase;
-    font-weight:400; color:#6d8f99}
-  .eyebrow{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.14em;
-    text-transform:uppercase; color:var(--ink-3)}
-  .eyebrow b{color:var(--accent); font-weight:600}
-  h1{font-family:Archivo,sans-serif; font-weight:800; letter-spacing:-.02em; margin:0;
-    font-size:clamp(19px,4.4vw,28px); line-height:1.12; width:100%}
+  .topbar .menu{color:var(--bar-ink); text-decoration:none; font-weight:600; font-size:13px;
+    white-space:nowrap; opacity:.9}
+  .topbar .menu:hover{opacity:1; text-decoration:underline}
+  .topbar .fake{
+    flex:none; font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:10px;
+    letter-spacing:.18em; color:#f0d4c9; background:#653b30; border-radius:3px;
+    padding:3px 6px; white-space:nowrap;
+  }
+  .doesnot{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--warm);
+    margin:10px 0 0; line-height:1.5}
+  .topbar .ttl{flex:1; text-align:center; overflow:hidden; text-overflow:ellipsis;
+    white-space:nowrap; letter-spacing:-.01em}
+  .topbar .date{font-family:"IBM Plex Mono",monospace; font-weight:500; font-size:12px;
+    white-space:nowrap; opacity:.85}
+  .board{display:flex; align-items:stretch; gap:0; border-bottom:1px solid var(--line)}
+  .scorebox{
+    flex:none; width:96px; background:var(--paper); border-right:1px solid var(--accent-dim);
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    padding:5px 6px 7px;
+  }
+  .scorebox .lbl{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em;
+    color:var(--accent); text-transform:uppercase}
+  .scorebox .num{font-family:Archivo,sans-serif; font-weight:800; font-size:30px; line-height:1;
+    letter-spacing:-.02em; color:var(--ink); font-variant-numeric:tabular-nums}
+  .panel{flex:1; min-width:0; display:flex; flex-direction:column}
+  .mult{
+    background:var(--m-bg); color:var(--m-ink); text-align:center;
+    font-family:Archivo,sans-serif; font-weight:600; font-size:13px; padding:4px 10px;
+    letter-spacing:.01em; border-bottom:1px solid rgba(0,0,0,.28);
+  }
+  .ask{
+    flex:1; display:flex; align-items:center; justify-content:center; text-align:center;
+    background:var(--raise); padding:9px 12px; font-size:clamp(15px,3.6vw,19px);
+    line-height:1.25; font-weight:400;
+  }
+  .ask b{font-weight:600; color:#fff}
+
+  /* ---- map ---- */
   #map{flex:1; min-height:0; background:var(--sea); cursor:crosshair}
   #map.locked{cursor:default}
   .leaflet-container{background:var(--sea); font-family:"IBM Plex Mono",monospace}
-  .leaflet-control-attribution{background:var(--raise)!important; color:var(--ink-3)!important;
+  .leaflet-control-attribution{background:rgba(7,13,19,.82)!important; color:var(--ink-3)!important;
     font-family:"IBM Plex Mono",monospace!important; font-size:9px!important}
   .leaflet-control-attribution a{color:var(--ink-2)!important}
+  .leaflet-bar a{background:var(--raise)!important; color:var(--ink)!important;
+    border-bottom-color:var(--line)!important}
+  .leaflet-bar a:hover{background:#1a2a33!important}
+
+  /* ---- footer: the result of the tap ---- */
   footer{
-    flex:none; border-top:1px solid rgba(68,248,251,.22); background:rgba(0,0,17,.94);
-    padding:11px 16px calc(11px + env(safe-area-inset-bottom,0px));
-    display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; min-height:58px;
+    flex:none; border-top:1px solid var(--line); background:var(--paper);
+    padding:10px 13px calc(10px + env(safe-area-inset-bottom,0px));
+    display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; min-height:56px;
   }
   .hint{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-3)}
-  .fb{display:flex; flex-wrap:wrap; gap:6px 16px; align-items:baseline}
-  .fb .acc{font-family:Archivo,sans-serif; font-weight:800; font-size:30px; letter-spacing:-.02em;
-    line-height:1; color:#44f8fb}
+  .fb{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:baseline; flex:1; min-width:0}
+  .fb .acc{font-family:Archivo,sans-serif; font-weight:800; font-size:28px; letter-spacing:-.02em;
+    line-height:1; color:var(--accent)}
   .fb .det{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-2)}
   .fb .quip{font-size:15px; font-style:italic; color:var(--ink); flex-basis:100%; margin-top:2px}
   @media (min-width:760px){ .fb .quip{flex-basis:auto; margin-top:0} }
   .btn{
     font:inherit; cursor:pointer; font-family:Archivo,sans-serif; font-weight:700; font-size:14.5px;
-    padding:10px 20px; border-radius:100px; border:1px solid #44f8fb; background:#44f8fb;
-    color:#00131a; margin-left:auto;
+    padding:10px 20px; min-height:44px; border-radius:5px; border:1px solid var(--accent);
+    background:var(--accent-dim); color:#eaf6f7; margin-left:auto;
   }
-  .btn.ghost{background:transparent; color:#99f8fb; border-color:#1d3b44; margin-left:0}
+  .btn:hover{background:#376b74}
+  .btn.ghost{background:transparent; color:var(--ink-2); border-color:var(--line); margin-left:0}
+  .btn.ghost:hover{background:var(--raise)}
   .btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
   .pin{width:16px; height:16px; border-radius:50%; border:2.5px solid #fff;
-    box-shadow:0 0 0 1px rgba(16,24,20,.5), 0 2px 6px rgba(0,0,0,.45)}
-  .pin.guess{background:#44f8fb}
+    box-shadow:0 0 0 1px rgba(5,10,16,.6), 0 2px 6px rgba(0,0,0,.5)}
+  .pin.guess{background:var(--accent)}
   .pin.answer{background:var(--gold)}
   .alabel{font-family:Archivo,sans-serif; font-weight:700; font-size:12px; color:#fff; white-space:nowrap;
-    text-shadow:0 0 3px rgba(16,24,20,.95),0 1px 2px rgba(16,24,20,.9); transform:translate(-50%,-170%)}
-  /* results */
-  #done{position:absolute; inset:0; z-index:1100; background:var(--paper); overflow:auto; padding:26px 18px 40px;
-    display:flex; justify-content:center}
+    text-shadow:0 0 3px rgba(5,10,16,.95),0 1px 2px rgba(5,10,16,.9); transform:translate(-50%,-170%)}
+
+  /* ---- results and entry sheets ----
+     Leaflet's own controls sit at z-index 1000, so these have to clear it or the
+     zoom buttons float on top of the results. */
+  #done{position:absolute; inset:0; z-index:1100; background:var(--paper); overflow:auto;
+    padding:26px 18px 40px; display:flex; justify-content:center}
   .sheet{width:100%; max-width:560px}
   .sheet h2{font-family:Archivo,sans-serif; font-weight:800; font-size:clamp(24px,6vw,34px);
     letter-spacing:-.025em; margin:0 0 4px}
+  .eyebrow{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-3)}
+  .eyebrow b{color:var(--accent); font-weight:600}
   .total{display:flex; align-items:baseline; gap:10px; margin:18px 0 4px}
   .total .n{font-family:Archivo,sans-serif; font-weight:800; font-size:52px; letter-spacing:-.03em;
-    line-height:1; color:#44f8fb}
+    line-height:1; color:var(--accent)}
   .total .o{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-3)}
-  .rows{display:grid; gap:1px; background:var(--contour-2); border:1px solid var(--contour);
+  .rows{display:grid; gap:1px; background:var(--line-2); border:1px solid var(--line);
     border-radius:4px; margin:16px 0}
   .rows div{background:var(--raise); padding:10px 13px; display:flex; gap:12px; align-items:baseline;
     justify-content:space-between}
@@ -95,107 +802,37 @@
   .rows .sc{font-family:"IBM Plex Mono",monospace; font-size:13px; white-space:nowrap}
   .rows .sc .km{color:var(--ink-3)}
   pre{font-family:"IBM Plex Mono",monospace; font-size:13.5px; line-height:1.75; white-space:pre-wrap;
-    background:var(--raise); border:1px solid var(--contour); border-radius:4px; padding:14px; margin:0}
+    background:var(--raise); border:1px solid var(--line); border-radius:4px; padding:14px; margin:0}
   .bar{display:flex; flex-wrap:wrap; gap:9px; align-items:center; margin-top:12px}
   .said{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--accent)}
   a.back{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-3)}
-  #entry{position:absolute; inset:0; z-index:1100; background:var(--paper); overflow:auto; padding:30px 18px 40px;
-    display:flex; justify-content:center}
+  #entry{position:absolute; inset:0; z-index:1100; background:var(--paper); overflow:auto;
+    padding:30px 18px 40px; display:flex; justify-content:center}
   #entry .lede{color:var(--ink-2); font-size:16px; margin:0 0 14px}
   #entry textarea{
     font:inherit; font-family:"IBM Plex Mono",monospace; font-size:12px; width:100%; resize:vertical;
-    background:var(--raise); color:var(--ink); border:1px solid var(--contour); border-radius:4px;
+    background:var(--raise); color:var(--ink); border:1px solid var(--line); border-radius:4px;
     padding:11px 12px; word-break:break-all;
   }
   #entry textarea:focus{outline:2px solid var(--accent); outline-offset:1px}
-  /* ---- the opening: five pins, one ball, no dignity ----------------------
-     Plays once when a round opens. Five pins because five rounds. It is decoration,
-     so it is skippable by tapping, it never blocks input for long, and under
-     reduced-motion it does not run at all. */
-  #intro{
-    position:absolute; inset:0; z-index:1200; background:#000011; overflow:hidden;
-    display:flex; align-items:center; justify-content:center; cursor:pointer;
-    animation:introout .34s ease-in 1.52s both;
-  }
-  #intro .alley{position:relative; width:min(300px,74vw); height:min(380px,58vh)}
-  /* the lane: a trapezoid, narrow end away from you */
-  #intro .lane{
-    position:absolute; left:0; right:0; top:8%; bottom:0;
-    clip-path:polygon(31% 0, 69% 0, 100% 100%, 0 100%);
-    background:
-      repeating-linear-gradient(90deg, rgba(68,248,251,.10) 0 1px, transparent 1px 12.5%),
-      linear-gradient(180deg, #06202a 0%, #0a2e3a 55%, #10404f 100%);
-    box-shadow:inset 0 0 60px rgba(0,0,17,.85);
-  }
-  #intro .pins{position:absolute; left:0; right:0; top:6%; height:16%;
-    display:flex; align-items:flex-end; justify-content:center; gap:5px}
-  #intro .pins i{
-    display:block; width:9px; height:22px; border-radius:46% 46% 30% 30%;
-    background:linear-gradient(180deg,#ffffff,#cfeef2 62%,#8fd6db);
-    box-shadow:0 0 9px rgba(68,248,251,.5); position:relative;
-    animation:pinfall .5s cubic-bezier(.3,-0.4,.6,1.4) .92s both;
-  }
-  #intro .pins i::after{content:""; position:absolute; left:0; right:0; top:7px; height:3px;
-    background:#ff8a5c; opacity:.85}
-  /* each pin takes it differently */
-  #intro .pins i:nth-child(1){--tx:-46px; --tr:-104deg; --ty:-16px}
-  #intro .pins i:nth-child(2){--tx:-21px; --tr:-58deg;  --ty:-30px}
-  #intro .pins i:nth-child(3){--tx:2px;   --tr:16deg;   --ty:-40px}
-  #intro .pins i:nth-child(4){--tx:24px;  --tr:71deg;   --ty:-27px}
-  #intro .pins i:nth-child(5){--tx:49px;  --tr:118deg;  --ty:-13px}
-  #intro .ball{
-    position:absolute; left:50%; bottom:2%; width:46px; height:46px; margin-left:-23px;
-    border-radius:50%; background:radial-gradient(circle at 34% 30%, #7dfcff, #44f8fb 42%, #0e6b78 100%);
-    box-shadow:0 0 22px rgba(68,248,251,.55);
-    animation:roll .92s cubic-bezier(.42,.03,.78,.72) both;
-  }
-  #intro .ball::before, #intro .ball::after{content:""; position:absolute; border-radius:50%;
-    background:#001018; opacity:.72}
-  #intro .ball::before{width:7px; height:7px; left:14px; top:11px;
-    box-shadow:11px -1px 0 #001018}
-  #intro .ball::after{width:7px; height:7px; left:19px; top:23px}
-  #intro .strike{
-    position:absolute; left:0; right:0; top:26%; text-align:center;
-    font-family:Archivo,sans-serif; font-weight:800; font-size:clamp(26px,8vw,44px);
-    letter-spacing:-.03em; color:#fff; text-shadow:0 0 26px rgba(68,248,251,.85);
-    animation:pop .44s cubic-bezier(.2,1.7,.4,1) 1.02s both;
-  }
-  #intro .strike span{display:block; font-family:"IBM Plex Mono",monospace; font-weight:500;
-    font-size:11px; letter-spacing:.3em; color:#44f8fb; margin-top:6px}
-  #intro .skip{position:absolute; left:0; right:0; bottom:14px; text-align:center;
-    font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em;
-    text-transform:uppercase; color:#3d5b64}
-  @keyframes roll{
-    0%  {transform:translateY(0) scale(1) rotate(0deg)}
-    100%{transform:translateY(calc(-1 * min(300px,52vh))) scale(.26) rotate(710deg)}
-  }
-  @keyframes pinfall{
-    0%  {transform:none; opacity:1}
-    100%{transform:translate(var(--tx),var(--ty)) rotate(var(--tr)); opacity:0}
-  }
-  @keyframes pop{
-    0%  {transform:scale(.5); opacity:0}
-    100%{transform:scale(1);  opacity:1}
-  }
-  @keyframes introout{to{opacity:0; visibility:hidden}}
-  @media (prefers-reduced-motion:reduce){
-    #intro{display:none!important}
-  }
+  .fail{padding:40px 20px; text-align:center; font-family:"IBM Plex Mono",monospace;
+    font-size:13px; color:var(--ink-3)}
 
-  /* ---------------------------------------------------------------- mobile ----
-     The layout is already a flex column at 100dvh with safe-area padding; what small
-     screens need is thumb-sized buttons and a footer that does not steal the map. */
-  html{-webkit-text-size-adjust:100%}
-  .btn{min-height:44px}
+  /* ---------------------------------------------------------------- mobile ---- */
   @media (max-width:560px){
-    header{padding:10px 13px calc(10px + env(safe-area-inset-top,0px)); gap:3px 12px}
-    footer{padding:9px 13px calc(9px + env(safe-area-inset-bottom,0px)); gap:7px 13px}
-    .wordmark{font-size:10.5px; letter-spacing:.22em}
-    .fb{flex:1; min-width:0}
-    .fb .acc{font-size:26px}
+    .topbar{padding:6px 10px; font-size:13px; gap:8px}
+    .topbar .menu{font-size:12px}
+    .topbar .date{display:none}   /* the round title needs the room more than the date does */
+    .scorebox{width:80px}
+    .scorebox .num{font-size:26px}
+    .scorebox .lbl{font-size:9.5px}
+    .mult{font-size:12px; padding:3px 8px}
+    .ask{padding:8px 10px}
+    footer{padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px)); gap:7px 12px}
+    .fb .acc{font-size:25px}
     .fb .det{font-size:11px}
     .fb .quip{font-size:14px; line-height:1.3}
-    .btn{font-size:14px; padding:10px 17px}
+    .btn{font-size:14px; padding:10px 16px}
     #next{margin-left:auto; flex:none}
     #done, #entry{padding:22px 15px 36px}
     .total .n{font-size:44px}
@@ -206,26 +843,36 @@
     .bar .btn{flex:1 1 auto}
     #entry textarea{font-size:16px}     /* 16px or iOS zooms the whole page in */
   }
+  @media (max-width:380px){
+    .scorebox{width:72px}
+  }
   /* phone held sideways: the chrome has to give the map room */
   @media (max-height:480px) and (orientation:landscape){
-    .wordmark{display:none}
-    header{padding:7px 13px calc(7px + env(safe-area-inset-top,0px))}
-    footer{min-height:0; padding:7px 13px calc(7px + env(safe-area-inset-bottom,0px))}
+    .topbar{padding:4px 10px}
+    .scorebox{padding:3px 6px 4px}
+    .scorebox .num{font-size:22px}
+    .ask{padding:6px 10px; font-size:15px}
+    footer{min-height:0; padding:7px 12px calc(7px + env(safe-area-inset-bottom,0px))}
     .fb .acc{font-size:21px}
     .fb .quip{flex-basis:auto; margin-top:0}
-    #intro .alley{height:74vh}
   }
-
-  .fail{padding:40px 20px; text-align:center; font-family:"IBM Plex Mono",monospace;
-    font-size:13px; color:var(--ink-3)}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="wordmark"><span class="dot"></span>MAPTAP<span class="tag">custom round</span></div>
-  <h1 id="prompt">Loading round&#8230;</h1>
-  <span class="eyebrow" id="meta"></span>
+  <div class="topbar">
+    <a class="menu" href="./">&#9776; Standings</a>
+    <span class="fake">FAKE</span><span class="ttl" id="gtitle">MapTap</span>
+    <span class="date" id="gdate"></span>
+  </div>
+  <div class="board">
+    <div class="scorebox"><span class="lbl">Score</span><span class="num" id="score">000</span></div>
+    <div class="panel">
+      <div class="mult" id="meta">&nbsp;</div>
+      <div class="ask" id="prompt">Loading round&#8230;</div>
+    </div>
+  </div>
 </header>
 
 <div id="map"></div>
@@ -239,16 +886,6 @@
   </span>
   <button type="button" class="btn" id="next" hidden>Next round</button>
 </footer>
-
-<div id="intro" hidden>
-  <div class="alley">
-    <div class="lane"></div>
-    <div class="pins"><i></i><i></i><i></i><i></i><i></i></div>
-    <div class="ball"></div>
-    <div class="strike">STRIKE<span>five pins, five rounds</span></div>
-    <div class="skip">tap to skip</div>
-  </div>
-</div>
 
 <div id="entry" hidden>
   <div class="sheet">
@@ -269,6 +906,8 @@
     <span class="eyebrow">your round</span>
     <div class="total"><span class="n" id="dtotal"></span><span class="o">out of 1000</span></div>
     <div class="rows" id="drows"></div>
+    <p class="doesnot">A custom round is for fun. It is not a real MapTap and it does not
+      count toward the standings &#8212; only the daily game does.</p>
     <pre id="share"></pre>
     <div class="bar">
       <button type="button" class="btn" id="copy" style="margin-left:0">Copy result</button>
@@ -359,6 +998,8 @@
   }
 
   var P=null, ri=0, results=[], map=null, guessLayer=null, locked=false;
+  try{ $("gdate").textContent=new Date().toLocaleDateString("en-US",
+       {month:"short",day:"numeric",year:"numeric"}); }catch(e){}
 
   function fail(msg){
     $("map").innerHTML='<div class="fail">'+msg+'</div>';
@@ -376,35 +1017,13 @@
     $("entry").hidden=false; $("done").hidden=true;
     $("entryerr").textContent=msg||"";
     $("prompt").textContent="Paste a round to begin";
-    $("meta").textContent=""; $("hint").textContent=""; $("fb").hidden=true; $("next").hidden=true;
+    $("meta").innerHTML="&nbsp;"; $("gtitle").textContent="MapTap"; setScore(0); $("hint").textContent=""; $("fb").hidden=true; $("next").hidden=true;
   }
-  // The opening. Decoration only: it is removed on tap, on the animation ending, and by a
-  // timer that outlives the animation, so a dropped animationend can never strand the screen.
-  var introDone=false;
-  function intro(){
-    var el=$("intro");
-    if(!el) return;
-    if(window.matchMedia && matchMedia("(prefers-reduced-motion:reduce)").matches) return;
-    introDone=false;
-    // restart cleanly if a second round is opened in the same visit
-    el.hidden=false; el.style.display=""; void el.offsetWidth;
-    var kill=function(){
-      if(introDone) return;
-      introDone=true;
-      el.hidden=true;
-      try{ map.invalidateSize(); }catch(e){}
-    };
-    el.addEventListener("click", kill, {once:true});
-    el.addEventListener("animationend", function(e){ if(e.animationName==="introout") kill(); });
-    setTimeout(kill, 2400);
-  }
-
   function begin(o){
-    P=o; ri=0; results=[];
+    P=o; ri=0; results=[]; setScore(0);
     document.title=(P.t||"Custom round")+" \u2014 MapTap";
     $("entry").hidden=true; $("done").hidden=true; $("said").textContent="";
     startRound();
-    intro();
     setTimeout(function(){ try{map.invalidateSize()}catch(e){} },40);
   }
 
@@ -416,6 +1035,20 @@
     {maxZoom:19, attribution:"Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics"}).addTo(map);
   guessLayer=L.layerGroup().addTo(map);
 
+  // MapTap labels each round by its multiplier and tints the banner to match.
+  var BAND={1:["Easy","#3f5a3c","#d3e5cb"], 2:["Medium","#5e5330","#ece0bf"], 3:["Hard","#653b30","#f0d4c9"]};
+  var running=0;
+  function setScore(n){
+    running=n;
+    $("score").textContent = n<1000 ? String(n).padStart(3,"0") : String(n);
+  }
+  function setBanner(mx){
+    var b=BAND[mx]||BAND[1];
+    $("meta").textContent=b[0]+" \u2014 "+mx+"x Multiplier";
+    document.documentElement.style.setProperty("--m-bg",b[1]);
+    document.documentElement.style.setProperty("--m-ink",b[2]);
+  }
+
   function startRound(){
     if(!P) return;
     locked=false;
@@ -424,9 +1057,10 @@
     $("fb").hidden=true; $("next").hidden=true;
     $("hint").hidden=false;
     $("hint").textContent="Tap the map to drop your pin. Wherever you tap is your answer.";
-    $("prompt").textContent=P.q[ri][0];
-    $("meta").innerHTML="Round "+(ri+1)+" of "+P.q.length+" &middot; <b>&times;"+(MULT[ri]||1)+"</b>"
-      +(P.t?" &middot; "+String(P.t).replace(/</g,"&lt;"):"");
+    $("prompt").innerHTML="Tap as close as you can to <b>"
+      +String(P.q[ri][0]).replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</b>";
+    setBanner(MULT[ri]||1);
+    $("gtitle").textContent=(P.t||"Custom round")+"  #"+(ri+1)+"/"+P.q.length;
     map.setView([20,0],2);
   }
   function pin(lat,lng,cls,label){
@@ -450,6 +1084,7 @@
       {color:getComputedStyle(document.body).getPropertyValue("--gold").trim()||"#A9812A",
        weight:2, dashArray:"5 4", interactive:false}));
     try{ map.fitBounds(L.latLngBounds([[e.latlng.lat,e.latlng.lng],[q[1],q[2]]]).pad(0.35)); }catch(err){}
+    setScore(running + acc*mx);
     $("acc").textContent=acc;
     $("det").innerHTML=(km<1?"under 1":Math.round(km).toLocaleString())+" km away &nbsp;&middot;&nbsp; &times;"
       +mx+" = "+(acc*mx)+" points";
@@ -471,9 +1106,12 @@
         +'<span class="sc">'+r.acc+EMO[r.acc]+' <span class="km">&times;'+r.m+" = "+r.pts+"</span>"
         +' <span class="km">'+(r.km<1?"<1":Math.round(r.km).toLocaleString())+" km</span></span></div>";
     }).join("");
-    $("share").textContent=(P.t||"Custom round")+"\n"
+    // Deliberately NOT the real game's wording. "Final score:" is the string the
+    // standings scraper looks for, so a custom round must never emit it -- and anyone
+    // reading the paste should see at a glance that it is not a real result.
+    $("share").textContent="FAKE MAPTAP \u2014 "+(P.t||"Custom round")+"\n"
       +results.map(function(r){return r.acc+EMO[r.acc]}).join(" ")+"\n"
-      +"Final score: "+tot;
+      +"Fake score: "+tot+"/1000 \u2014 does not count";
     $("done").hidden=false;
   }
   $("copy").addEventListener("click", function(){
@@ -484,7 +1122,7 @@
     $("said").textContent = ok ? "Copied \u2014 paste it in the chat." : "Select the text above and copy it.";
   });
   $("again").addEventListener("click", function(){
-    ri=0; results=[]; $("done").hidden=true; $("said").textContent=""; startRound();
+    ri=0; results=[]; setScore(0); $("done").hidden=true; $("said").textContent=""; startRound();
   });
 
   $("start").addEventListener("click",function(){

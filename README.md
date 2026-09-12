@@ -86,9 +86,17 @@ tile service; none of it needs a key.
 
 - **Google Fonts** — Archivo, IBM Plex Mono, Source Serif 4. Each has a real fallback stack,
   so a block just changes the typeface.
-- **Leaflet 1.9.4** (cdnjs) — both `leaflet.js` and `leaflet.css`. The stylesheet is not
-  optional: without it the map panes are unpositioned and tiles stack vertically. The page
-  probes for it at runtime and falls back if it is missing.
+- **Leaflet 1.9.4** — `leaflet.js` from cdnjs. **`leaflet.css` is inlined**, not linked.
+  The stylesheet is not optional (without it the map panes are unpositioned and tiles stack
+  vertically), and a linked stylesheet is the first thing a strict CSP blocks, so it lives in
+  the page. It is BSD-2-Clause; the notice is kept at the top of the inlined block. The three
+  `url()` references it carries are for the layers control and default marker icon, neither of
+  which this page uses, so nothing is fetched. The runtime probe still runs — it just passes now.
+
+  *Fixed:* the probe used to set `position:static` as an inline style before checking whether
+  `.leaflet-pane` computed to `absolute`. An inline style outranks a class rule, so it read back
+  `static` every time and the terrain map fell back to the flat SVG on every load, whether or not
+  Leaflet was fine. The probe no longer pre-sets the property it is measuring.
 - **Esri World Shaded Relief** tiles, `.../World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}`
   (note Esri's y-before-x ordering), max zoom 13. Attribution is a licence condition and is
   rendered on the map: *Tiles © Esri — Source: Esri, USGS, NOAA*. Relief rather than satellite
@@ -139,6 +147,13 @@ reference data they are read against: the export says what we scored, the mirror
 were scoring on.
 
 ## Custom rounds
+
+**They do not count.** Only the daily game at maptap.gg is tabulated. A finished custom round
+shares as `FAKE MAPTAP - <title>` and ends `Fake score: N/1000 - does not count`, deliberately
+avoiding the `Final score:` wording the scraper keys on. `build.py` also skips any message
+matching `fake maptap|fake score:` outright, and a score has never counted without a
+`maptap.gg <Month> <day>` header directly above it. Verified against the real export: 920
+results with or without four custom-round pastes mixed in.
 
 Build one at the bottom of the standings page: search five real places, relabel them however you
 like, hit **Share this round**. That produces a single link to `play.html`, which opens the round
