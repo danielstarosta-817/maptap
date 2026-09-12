@@ -758,11 +758,22 @@ svg.leaflet-image-layer.leaflet-interactive path {
   }
   .hint{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-3)}
   .fb{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:baseline; flex:1; min-width:0}
-  .fb .acc{font-family:Archivo,sans-serif; font-weight:800; font-size:28px; letter-spacing:-.02em;
-    line-height:1; color:var(--accent)}
-  .fb .det{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-2)}
+  /* the two numbers that matter: accuracy, and what it was worth */
+  .fb .acc{font-family:Archivo,sans-serif; font-weight:800; font-size:46px; letter-spacing:-.03em;
+    line-height:.9; color:var(--accent); font-variant-numeric:tabular-nums}
+  .fb .pts{font-family:Archivo,sans-serif; font-weight:800; font-size:21px; letter-spacing:-.01em;
+    line-height:1; color:var(--ink); background:var(--accent-dim); border:1px solid var(--accent);
+    border-radius:100px; padding:5px 12px; white-space:nowrap}
+  .fb .det{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-3)}
   .fb .quip{font-size:15px; font-style:italic; color:var(--ink); flex-basis:100%; margin-top:2px}
   @media (min-width:760px){ .fb .quip{flex-basis:auto; margin-top:0} }
+  /* Rounds advance on their own, so this shows how long you have to look. */
+  .beat{position:absolute; left:0; right:0; bottom:0; height:3px; background:var(--line-2)}
+  .beat i{display:block; height:100%; background:var(--accent); transform-origin:left center;
+    animation:dwell var(--dwell,2900ms) linear forwards}
+  @keyframes dwell{from{transform:scaleX(1)} to{transform:scaleX(0)}}
+  @media (prefers-reduced-motion:reduce){ .beat i{animation:none; transform:scaleX(1)} }
+  footer{position:relative}
   .btn{
     font:inherit; cursor:pointer; font-family:Archivo,sans-serif; font-weight:700; font-size:14.5px;
     padding:10px 20px; min-height:44px; border-radius:5px; border:1px solid var(--accent);
@@ -829,11 +840,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
     .mult{font-size:12px; padding:3px 8px}
     .ask{padding:8px 10px}
     footer{padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px)); gap:7px 12px}
-    .fb .acc{font-size:25px}
+    .fb .acc{font-size:38px}
+    .fb .pts{font-size:18px; padding:4px 10px}
     .fb .det{font-size:11px}
     .fb .quip{font-size:14px; line-height:1.3}
     .btn{font-size:14px; padding:10px 16px}
-    #next{margin-left:auto; flex:none}
     #done, #entry{padding:22px 15px 36px}
     .total .n{font-size:44px}
     .rows div{padding:9px 11px; gap:9px}
@@ -853,7 +864,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
     .scorebox .num{font-size:22px}
     .ask{padding:6px 10px; font-size:15px}
     footer{min-height:0; padding:7px 12px calc(7px + env(safe-area-inset-bottom,0px))}
-    .fb .acc{font-size:21px}
+    .fb .acc{font-size:30px}
+    .fb .pts{font-size:16px}
     .fb .quip{flex-basis:auto; margin-top:0}
   }
 </style>
@@ -881,10 +893,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
   <span class="hint" id="hint">Tap the map to drop your pin. Wherever you tap is your answer.</span>
   <span class="fb" id="fb" hidden>
     <span class="acc" id="acc"></span>
+    <span class="pts" id="pts"></span>
     <span class="det" id="det"></span>
     <span class="quip" id="quip"></span>
   </span>
-  <button type="button" class="btn" id="next" hidden>Next round</button>
+  <div class="beat" id="beat" hidden><i></i></div>
 </footer>
 
 <div id="entry" hidden>
@@ -1017,9 +1030,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
     $("entry").hidden=false; $("done").hidden=true;
     $("entryerr").textContent=msg||"";
     $("prompt").textContent="Paste a round to begin";
-    $("meta").innerHTML="&nbsp;"; $("gtitle").textContent="MapTap"; setScore(0); $("hint").textContent=""; $("fb").hidden=true; $("next").hidden=true;
+    stopBeat();
+    $("meta").innerHTML="&nbsp;"; $("gtitle").textContent="MapTap"; setScore(0); $("hint").textContent=""; $("fb").hidden=true;
   }
   function begin(o){
+    stopBeat();
     P=o; ri=0; results=[]; setScore(0);
     document.title=(P.t||"Custom round")+" \u2014 MapTap";
     $("entry").hidden=true; $("done").hidden=true; $("said").textContent="";
@@ -1049,16 +1064,35 @@ svg.leaflet-image-layer.leaflet-interactive path {
     document.documentElement.style.setProperty("--m-ink",b[2]);
   }
 
+  // Rounds advance on their own after a beat, so there is no button to press. The timer
+  // is a single handle that every exit path clears -- otherwise a round left mid-dwell
+  // would fire later and yank the player out of whatever they moved on to.
+  var DWELL=2900, beatTimer=null;
+  function stopBeat(){
+    if(beatTimer){ clearTimeout(beatTimer); beatTimer=null; }
+    var b=$("beat"); if(b) b.hidden=true;
+  }
+  function runBeat(fn){
+    stopBeat();
+    var b=$("beat");
+    if(b){ b.hidden=false; b.style.setProperty("--dwell",DWELL+"ms");
+           var i=b.firstElementChild; if(i){ i.style.animation="none"; void i.offsetWidth; i.style.animation=""; } }
+    beatTimer=setTimeout(function(){ beatTimer=null; if(b) b.hidden=true; fn(); }, DWELL);
+  }
+
   function startRound(){
     if(!P) return;
+    stopBeat();
     locked=false;
     $("map").classList.remove("locked");
     guessLayer.clearLayers();
-    $("fb").hidden=true; $("next").hidden=true;
+    $("fb").hidden=true;
     $("hint").hidden=false;
     $("hint").textContent="Tap the map to drop your pin. Wherever you tap is your answer.";
-    $("prompt").innerHTML="Tap as close as you can to <b>"
-      +String(P.q[ri][0]).replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</b>";
+    // .ask is a flex container: a bare text node and the <b> become separate flex
+    // items and the space between them is dropped. Keep it all in one child.
+    $("prompt").innerHTML="<span>Tap as close as you can to <b>"
+      +String(P.q[ri][0]).replace(/&/g,"&amp;").replace(/</g,"&lt;")+"</b></span>";
     setBanner(MULT[ri]||1);
     $("gtitle").textContent=(P.t||"Custom round")+"  #"+(ri+1)+"/"+P.q.length;
     map.setView([20,0],2);
@@ -1086,18 +1120,17 @@ svg.leaflet-image-layer.leaflet-interactive path {
     try{ map.fitBounds(L.latLngBounds([[e.latlng.lat,e.latlng.lng],[q[1],q[2]]]).pad(0.35)); }catch(err){}
     setScore(running + acc*mx);
     $("acc").textContent=acc;
-    $("det").innerHTML=(km<1?"under 1":Math.round(km).toLocaleString())+" km away &nbsp;&middot;&nbsp; &times;"
-      +mx+" = "+(acc*mx)+" points";
+    $("pts").textContent="+"+(acc*mx)+(acc*mx===1?" pt":" pts");
+    $("det").innerHTML=(km<1?"under 1":Math.round(km).toLocaleString())+" km away &nbsp;&middot;&nbsp; &times;"+mx;
     $("quip").textContent=quip(acc);
     $("hint").hidden=true; $("fb").hidden=false;
-    $("next").hidden=false;
-    $("next").textContent = ri<P.q.length-1 ? "Next round" : "See your score";
-  });
-  $("next").addEventListener("click", function(){
-    if(ri<P.q.length-1){ ri++; startRound(); } else finish();
+    runBeat(function(){
+      if(ri<P.q.length-1){ ri++; startRound(); } else finish();
+    });
   });
 
   function finish(){
+    stopBeat();
     var tot=results.reduce(function(a,b){return a+b.pts},0);
     $("dtitle").textContent=P.t||"Custom round";
     $("dtotal").textContent=tot;
@@ -1122,7 +1155,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     $("said").textContent = ok ? "Copied \u2014 paste it in the chat." : "Select the text above and copy it.";
   });
   $("again").addEventListener("click", function(){
-    ri=0; results=[]; setScore(0); $("done").hidden=true; $("said").textContent=""; startRound();
+    stopBeat(); ri=0; results=[]; setScore(0); $("done").hidden=true; $("said").textContent=""; startRound();
   });
 
   $("start").addEventListener("click",function(){
