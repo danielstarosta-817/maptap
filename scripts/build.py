@@ -16,6 +16,7 @@ merge to drift. Stdlib only.
 
 import datetime as dt
 import json
+import geo
 import math
 import os
 import re
@@ -379,7 +380,25 @@ def carry_geography(old_block):
     return ("\n".join(kept) + "\n") if kept else ""
 
 
-def retitle(page, recs, days):
+def read_rc(page):
+    """The country -> region table lives in the page, hand-maintained alongside the map."""
+    i = page.index("const RC=")
+    k = page.index("\n};", i)
+    return json.loads(page[i + len("const RC="):k + 2].replace("&amp;", "&"))
+
+
+def previous_list(old_block, name):
+    """Parse one const array out of the block currently in the page, or None."""
+    m = re.search(r"^const %s=(\[.*?\]);$" % name, old_block, re.S | re.M)
+    if not m:
+        return None
+    try:
+        return json.loads(m.group(1).replace("&amp;", "&"))
+    except ValueError:
+        return None
+
+
+def retitle(page, recs, days, geo_rounds=None, geo_regions=None):
     """The banner and the All-time caption are hand-written HTML outside the generated
     block, so a rebuild used to leave them advertising whatever the season looked like
     the day someone last typed them. Keep them honest."""
@@ -402,6 +421,13 @@ def retitle(page, recs, days):
         (r"\w{3} \d+ &#8211; \w{3} \d+ &#183; ranked by wins",
          "%s &#8211; %s &#183; ranked by wins" % (short(d0), short(d1))),
     ]
+    if geo_rounds:
+        subs += [
+            (r"\d+ rounds &#183; points vs own average",
+             "%d rounds &#183; points vs own average" % geo_rounds),
+            (r"\d+ regions &#183; \d+ rounds placed",
+             "%d regions &#183; %d rounds placed" % (geo_regions, geo_rounds)),
+        ]
     for pat, rep in subs:
         page = re.sub(pat, rep, page)
     return page
@@ -461,10 +487,34 @@ def main():
     # offsets found in page_preview no longer line up. Recompute them against the page we
     # are actually about to slice -- getting this wrong truncates the block by a character
     # and takes every table and map on the page down with it.
-    page = retitle(page_preview, recs, days)
+    # Geography used to be carried verbatim from the previous page, which meant it never
+    # picked up a new day. Compute it whenever the archive can support it, and fall back to
+    # carrying so a missing archive still cannot blank those sections.
+    geo_src, geo_note = carry_geography(old_block), None
+    if archive:
+        try:
+            rc = read_rc(page_preview)
+            labels = {t[0]: t[7:] for t in (previous_list(old_block, "TERR") or [])}
+            REG, OWN, TERR, rep = geo.analyse(recs, archive, rc, PLAYERS, labels)
+            if REG and TERR:
+                geo_src = ("const REG=[\n" + ",\n".join(" " + js(r) for r in REG) + "\n];\n"
+                           "const OWN=[\n" + ",\n".join(" " + js(r) for r in OWN) + "\n];\n"
+                           "const TERR=[\n" + ",\n".join(" " + js(t) for t in TERR) + "\n];\n")
+                geo_note = ("geography: %d of %d rounds placed across %d regions, %d countries"
+                            % (rep["placed"], rep["placed"] + rep["dropped"],
+                               rep["regions"], rep["countries"]))
+                b["geo_rounds"] = sum(r[1] for r in REG)
+                b["geo_regions"] = len(TERR)
+        except Exception as exc:
+            geo_note = "geography: could not rebuild (%s); carrying the previous figures" % exc
+    if geo_note:
+        print(geo_note)
+
+    page = retitle(page_preview, recs, days, b.get("geo_rounds"), b.get("geo_regions"))
     begin = page.index("\n", page.index("/* ---- GENERATED:BEGIN")) + 1
     end = page.index("/* ---- GENERATED:END")
-    new = ascii_js(render_block(b, days)) + carry_geography(old_block)
+
+    new = ascii_js(render_block(b, days)) + geo_src
     for name in GEO_CONSTS:
         if ("const %s=" % name) not in new:
             print("could not carry %s through; refusing to write a broken page" % name,
