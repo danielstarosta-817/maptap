@@ -1388,7 +1388,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 <details class="top">
   <summary class="tophead"><h2>More data</h2><span class="note">the geography, the timing, and the odd fact</span><span class="chev" aria-hidden="true"></span></summary>
   <details class="sub">
-    <summary class="sechead"><h2>Every day, everyone</h2><span class="note">170 puzzles &#183; click a name to show or hide it</span><span class="chev" aria-hidden="true"></span></summary>
+    <summary class="sechead"><h2>Every day, everyone</h2><span class="note">183 puzzles &#183; click a name to show or hide it</span><span class="chev" aria-hidden="true"></span></summary>
     <div class="chartcard">
       <div class="chartctl">
         <div class="toggles" id="toggles"></div>
@@ -1520,6 +1520,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 </div>
 <script>
 /* ---- GENERATED:BEGIN ---- rebuilt by scripts/build.py; do not hand-edit ---- */const ALL=[
+const ALL=[
  {p:"Brian",w:64,tie:4,gp:182,h:290,pod:141,g950:66,s800:15,best:998,worst:587,avg:910.7},
  {p:"Gabe",w:51,tie:4,gp:182,h:116,pod:137,g950:61,s800:10,best:994,worst:691,avg:916.1},
  {p:"Drew",w:25,tie:2,gp:134,h:108,pod:76,g950:36,s800:11,best:994,worst:700,avg:899.6},
@@ -1622,7 +1623,6 @@ const TERR=[
  ["Australia & New Zealand",23,89.6,"Luke",93.5,"Brian",93.4, -26,134,0],
  ["Pacific Islands",9,59.6,"Brett",68.4,"Brian",67.9, -16,178,0]
 ];
-
 /* ---- GENERATED:END ---- */
 
 const SERIES={}; Object.entries(RAW).forEach(([k,s])=>{
@@ -2168,7 +2168,7 @@ function drawDaily(){
   const X=i=>ml+iw*i/(NDAYS-1);
   const Y=v=>mt+ih-((Math.max(lo,Math.min(hi,v))-lo)/(hi-lo))*ih;
   const ticks=MODE==="roll"?[760,820,880,940,1000]:[600,700,800,900,1000];
-  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Daily Maptap scores for all seven players across 170 puzzles, ${MODE==="roll"?"as a 7-day rolling average":"day by day"}.">`;
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Daily Maptap scores for all seven players across 183 puzzles, ${MODE==="roll"?"as a 7-day rolling average":"day by day"}.">`;
   ticks.forEach(t=>{
     s+=`<line x1="${ml}" y1="${Y(t)}" x2="${W-mr}" y2="${Y(t)}" stroke="var(--contour-2)" stroke-width="1"/>`;
     s+=`<text x="${ml-9}" y="${Y(t)+4}" text-anchor="end" fill="var(--ink-3)" font-family="IBM Plex Mono, monospace" font-size="10.5">${t}</text>`;
