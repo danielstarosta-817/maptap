@@ -72,6 +72,11 @@ fi
 out="$(python3 scripts/build.py 2>&1)" || { say "$out"; die "build failed"; }
 say "$out"
 
+# The page is inert HTML until its inline script runs, so a broken build still serves a
+# 200 with plausible-looking markup and silently empty tables. Never publish one.
+chk="$(python3 scripts/check_page.py 2>&1)" || { say "$chk"; die "the rebuilt page is broken; nothing committed"; }
+say "$chk"
+
 # --- publish -----------------------------------------------------------------
 # Only the files this pipeline owns. The watcher fires on its own, so it must never sweep
 # up whatever else happens to be uncommitted in the repo at the time.

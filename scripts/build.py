@@ -457,8 +457,13 @@ def main():
         json.dump({"d0": days[0].isoformat(), "n": len(days), "series": b["raw"]}, fh, indent=1)
         fh.write("\n")
 
+    # retitle() edits text ABOVE the generated block and can change its length, so the
+    # offsets found in page_preview no longer line up. Recompute them against the page we
+    # are actually about to slice -- getting this wrong truncates the block by a character
+    # and takes every table and map on the page down with it.
     page = retitle(page_preview, recs, days)
-    begin, end = pb, pe
+    begin = page.index("\n", page.index("/* ---- GENERATED:BEGIN")) + 1
+    end = page.index("/* ---- GENERATED:END")
     new = ascii_js(render_block(b, days)) + carry_geography(old_block)
     for name in GEO_CONSTS:
         if ("const %s=" % name) not in new:
