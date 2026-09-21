@@ -1781,8 +1781,13 @@ function drawTerritory(world){
   svg.addEventListener("pointerup",stop);
   svg.addEventListener("pointercancel",stop);
   svg.addEventListener("pointerleave",stop);
-  const zi=opts.controls?document.getElementById("zin"):null,
-        zo=opts.controls?document.getElementById("zout"):null;
+  // These came over from terrainMap(hostId, geo, opts) during the shaded-relief work and
+  // kept its opts.controls guard, but drawTerritory takes no opts -- so this threw a
+  // ReferenceError partway through and the territory map never finished drawing. The
+  // buttons live in this map's own markup, and the if() guards below already cover
+  // their absence.
+  const zi=document.getElementById("zin"),
+        zo=document.getElementById("zout");
   if(zi) zi.addEventListener("click",()=>zoomCentre(0.62));
   if(zo) zo.addEventListener("click",()=>zoomCentre(1.6));
   const zp=document.getElementById("zpresets");
