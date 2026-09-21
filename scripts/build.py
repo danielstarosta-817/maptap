@@ -379,6 +379,34 @@ def carry_geography(old_block):
     return ("\n".join(kept) + "\n") if kept else ""
 
 
+def retitle(page, recs, days):
+    """The banner and the All-time caption are hand-written HTML outside the generated
+    block, so a rebuild used to leave them advertising whatever the season looked like
+    the day someone last typed them. Keep them honest."""
+    d0, d1 = days[0], days[-1]
+    def mon(d):  # "08 Sep 2026"
+        return "%02d %s %d" % (d.day, d.strftime("%b"), d.year)
+    def short(d):  # "Sep 8"
+        return "%s %d" % (d.strftime("%b"), d.day)
+    subs = [
+        (r"\d+ scores across \d+ daily puzzles",
+         "%d scores across %d daily puzzles" % (len(recs), len(days))),
+        (r"\d+ daily puzzles", "%d daily puzzles" % len(days)),
+        (r"\d{2} \w{3} \d{4} &rarr; \d{2} \w{3} \d{4}",
+         "%s &rarr; %s" % (mon(d0), mon(d1))),
+        (r"\d+ scores &middot;", "%d scores &middot;" % len(recs)),
+        (r"\d+ puzzles &#183; click a name",
+         "%d puzzles &#183; click a name" % len(days)),
+        (r"all seven players across \d+ puzzles",
+         "all seven players across %d puzzles" % len(days)),
+        (r"\w{3} \d+ &#8211; \w{3} \d+ &#183; ranked by wins",
+         "%s &#8211; %s &#183; ranked by wins" % (short(d0), short(d1))),
+    ]
+    for pat, rep in subs:
+        page = re.sub(pat, rep, page)
+    return page
+
+
 def main():
     if not os.path.exists(CHAT):
         print("no export at %s" % CHAT, file=sys.stderr)
@@ -429,7 +457,7 @@ def main():
         json.dump({"d0": days[0].isoformat(), "n": len(days), "series": b["raw"]}, fh, indent=1)
         fh.write("\n")
 
-    page = page_preview
+    page = retitle(page_preview, recs, days)
     begin, end = pb, pe
     new = ascii_js(render_block(b, days)) + carry_geography(old_block)
     for name in GEO_CONSTS:
@@ -437,10 +465,11 @@ def main():
             print("could not carry %s through; refusing to write a broken page" % name,
                   file=sys.stderr)
             return 1
-    if page[begin:end] == new:
+    rebuilt = page[:begin] + new + page[end:]
+    if rebuilt == page_preview:
         print("standings unchanged (%d results through %s)" % (len(recs), days[-1]))
         return 0
-    open(PAGE, "w", encoding="utf-8").write(page[:begin] + new + page[end:])
+    open(PAGE, "w", encoding="utf-8").write(rebuilt)
 
     lead = b["all_rows"][0]
     print("%d results, %s to %s" % (len(recs), days[0], days[-1]))
