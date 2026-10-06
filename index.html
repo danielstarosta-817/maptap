@@ -1420,7 +1420,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <p class="method"><span>MapTap sequences each day easy&nbsp;&rarr;&nbsp;hard, and it is not subtle: the global field drops <b>20 points</b> from round 1 to round 5. It also pays them differently. Fitting all 920 posted finals against their round accuracies solves exactly &#8212; the scoring is <span class="mono">1&times;R1 + 1&times;R2 + 2&times;R3 + 3&times;R4 + 3&times;R5</span>, out of 1000 &#8212; so <b>rounds 4 and 5 carry 60% of the day between them</b> and round 1 is worth a tenth of it. The hardest rounds are also the dearest, which is why the whole competition is decided in the last two.</span></p>
   </details>
   <details class="sub">
-    <summary class="sechead"><h2>Who is strong where</h2><span class="note">895 rounds &#183; points vs own average</span><span class="chev" aria-hidden="true"></span></summary>
+    <summary class="sechead"><h2>Who is strong where</h2><span class="note">969 rounds &#183; points vs own average</span><span class="chev" aria-hidden="true"></span></summary>
     <div class="scroller">
       <table id="regtable">
         <thead>
@@ -1449,7 +1449,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <p class="method"><span><b>Gabe</b> takes 10 of the 24, including Russia &#8212; the single worst country in the game for this group, where even his leading 81.2 is 17 points below his own average. <b>Brian</b> takes 8, among them the United States at 98.2 over 188 rounds, which is most of his win margin, and the United Kingdom on the same 98.2. <b>Luke</b> called it in May: he does hold China, the second-hardest country on the board, and Australia.</span></p>
   </details>
   <details class="sub">
-    <summary class="sechead"><h2>The territory map</h2><span class="note">31 regions &#183; 895 rounds placed</span><span class="chev" aria-hidden="true"></span></summary>
+    <summary class="sechead"><h2>The territory map</h2><span class="note">31 regions &#183; 969 rounds placed</span><span class="chev" aria-hidden="true"></span></summary>
     <div class="maplegend" id="maplegend"></div>
     <div class="mapctl">
       <div class="seg zpresets" id="zpresets">
@@ -1555,88 +1555,90 @@ const NDAYS=198, DAY0=new Date(2026,2,23);
 const STREAK={"Brian":4,"Gabe":5,"Drew":2,"Zach":3,"Brett":1,"Luke":1,"Danny":2};
 const TIMING=[["Midnight&#8211;4am",33,1.2,30.3],["4&#8211;7am",263,-2.7,20.5],["7&#8211;9am",478,1.9,18.6],["9&#8211;11am",150,-1.5,16.0],["11am&#8211;2pm",75,-2.1,20.0],["2&#8211;6pm",37,-4.4,13.5],["6pm&#8211;midnight",31,8.9,16.1]];
 const CLOCK=[["Gabe","PT","06:19",97,916.2,915.4],["Brian","ET","07:44",85,914.3,911.0],["Luke","PT","07:53",57,877.6,872.1],["Drew","ET","08:10",61,900.1,903.5],["Brett","ET","08:20",69,890.0,883.4],["Zach","CT","08:29",69,888.7,889.9],["Danny","ET","11:57",21,904.2,908.9]];
-const ROUNDPOS={global:[93.7,91.8,86.9,82.7,74.2], ours:[97.2,95.8,93.3,89.7,83.4]};
+const ROUNDPOS={global:[93.6,91.5,86.9,82.6,74.4], ours:[97.2,95.8,93.3,89.7,83.4]};
 const HARD=[
  {p:"Brian",v:62.6,n:40,e:97.9,h:87.8,r5:84.0},
- {p:"Gabe",v:73.0,n:40,e:96.8,h:88.9,r5:86.3},
- {p:"Drew",v:73.0,n:32,e:96.8,h:86.8,r5:83.5},
- {p:"Zach",v:56.9,n:38,e:96.6,h:85.0,r5:80.8},
- {p:"Brett",v:69.5,n:39,e:95.8,h:85.3,r5:82.5},
- {p:"Luke",v:67.9,n:22,e:95.4,h:83.6,r5:81.2},
- {p:"Danny",v:78.8,n:6,e:94.6,h:88.5,r5:87.3}
+ {p:"Gabe",v:71.5,n:40,e:96.8,h:88.9,r5:86.3},
+ {p:"Drew",v:72.7,n:32,e:96.8,h:86.8,r5:83.5},
+ {p:"Zach",v:57.3,n:38,e:96.6,h:85.0,r5:80.8},
+ {p:"Brett",v:69.3,n:39,e:95.8,h:85.3,r5:82.5},
+ {p:"Luke",v:66.6,n:22,e:95.4,h:83.6,r5:81.2},
+ {p:"Danny",v:76.6,n:7,e:94.6,h:88.5,r5:87.3}
 ];
 const REG=[
- ["North America",211,96.4,[4.3,2.8,4.2,4.9,5.1,5.6,1.4]],
- ["Central America & Caribbean",35,95.1,[2.4,3.5,1.4,4.1,2.8,5.0,-1.1]],
- ["South America",59,87.4,[-4.9,-2.3,-5.0,-5.2,-5.9,-7.3,1.0]],
- ["Western & Southern Europe",178,96.3,[3.5,4.0,4.9,4.5,4.8,4.3,3.4]],
- ["Eastern Europe & Russia",74,88.6,[-3.5,-1.8,-3.4,-3.0,-5.2,-4.7,-2.8]],
- ["Middle East & North Africa",63,93.9,[1.9,0.3,1.1,3.2,2.4,2.4,0.6]],
- ["Sub-Saharan Africa",82,83.6,[-8.9,-4.4,-8.4,-9.7,-7.9,-15.9,-3.3]],
- ["Central Asia",7,84.0,[-8.0,-13.7,-11.5,-6.0,-8.7,-2.3,null]],
- ["South Asia",43,88.6,[-1.4,-2.2,-4.1,-5.8,-4.6,-2.3,-3.2]],
- ["East Asia",77,91.3,[-0.7,-1.8,-1.2,-1.0,-0.3,0.9,-0.8]],
- ["Southeast Asia",29,89.8,[-1.8,-2.7,-3.2,-3.5,-3.9,4.3,null]],
- ["Oceania",37,84.0,[-5.7,-11.0,-9.1,-9.5,-10.3,-3.0,2.1]]
+ ["North America",223,96.4,[4.3,2.9,4.2,4.9,5.0,5.9,1.7]],
+ ["Central America & Caribbean",37,95.3,[2.5,3.7,1.3,4.0,3.1,5.1,1.2]],
+ ["South America",69,87.8,[-4.6,-2.1,-4.8,-5.1,-5.3,-6.5,-0.2]],
+ ["Western & Southern Europe",191,96.3,[3.4,4.1,4.9,4.3,4.6,4.1,3.3]],
+ ["Eastern Europe & Russia",79,88.9,[-3.4,-1.6,-3.1,-2.7,-4.9,-4.0,-3.0]],
+ ["Middle East & North Africa",67,93.8,[1.6,0.2,1.0,3.2,2.2,2.5,0.6]],
+ ["Sub-Saharan Africa",91,84.2,[-8.0,-4.5,-7.8,-9.1,-7.0,-15.0,-3.7]],
+ ["Central Asia",8,84.0,[-8.3,-12.6,-14.3,-5.0,-8.7,-2.7,null]],
+ ["South Asia",51,89.2,[-1.1,-1.8,-3.2,-5.4,-3.9,-2.0,-2.1]],
+ ["East Asia",81,91.2,[-1.0,-2.0,-1.4,-1.0,-0.5,1.2,-0.7]],
+ ["Southeast Asia",33,89.9,[-2.0,-3.0,-3.5,-3.4,-4.0,5.0,null]],
+ ["Oceania",39,83.7,[-5.6,-11.2,-9.2,-9.5,-10.5,-5.8,0.2]]
 ];
 const OWN=[
- ["United States",188,"Brian",98.2,"Gabe",96.7],
- ["United Kingdom",35,"Brian",98.2,"Drew",97.7],
- ["China",33,"Luke",87.7,"Gabe",87.5],
- ["Japan",29,"Brian",96.7,"Luke",95.1],
- ["France",26,"Gabe",97.5,"Brett",95.3],
- ["Canada",23,"Drew",95.9,"Brian",95.3],
- ["India",22,"Gabe",91.1,"Brian",90.0],
+ ["United States",197,"Brian",98.2,"Zach",96.7],
+ ["United Kingdom",39,"Brian",98.3,"Drew",97.8],
+ ["China",34,"Luke",87.7,"Gabe",87.1],
+ ["Japan",30,"Brian",96.2,"Luke",94.7],
+ ["France",28,"Gabe",97.4,"Brett",95.3],
+ ["Canada",26,"Drew",96.1,"Brian",95.8],
+ ["India",26,"Gabe",91.4,"Brian",90.4],
+ ["Italy",23,"Gabe",99.0,"Brian",97.5],
  ["Germany",21,"Gabe",96.8,"Brian",95.9],
- ["Italy",21,"Gabe",99.0,"Brian",97.8],
- ["Russia",20,"Gabe",81.2,"Brian",79.7],
- ["Australia",18,"Luke",93.8,"Brian",92.7],
+ ["Russia",21,"Gabe",81.1,"Brian",80.0],
+ ["Australia",19,"Brian",93.1,"Zach",89.3],
+ ["Brazil",13,"Gabe",92.9,"Brian",86.8],
  ["Mexico",13,"Gabe",96.7,"Brian",93.8],
+ ["Chile",12,"Gabe",86.3,"Drew",86.1],
  ["Ukraine",11,"Brian",95.0,"Zach",93.9],
  ["Egypt",11,"Brian",96.3,"Gabe",95.6],
- ["Chile",11,"Gabe",85.3,"Drew",85.0],
- ["Brazil",11,"Gabe",93.5,"Brian",87.0],
+ ["Turkey",11,"Zach",95.5,"Brian",95.2],
+ ["Indonesia",11,"Brian",92.5,"Zach",88.0],
+ ["Netherlands",10,"Drew",99.4,"Brian",99.4],
  ["Switzerland",10,"Gabe",98.7,"Brian",98.6],
- ["Turkey",10,"Zach",95.3,"Gabe",95.0],
+ ["Spain",10,"Gabe",98.1,"Brian",94.9],
  ["Iraq",9,"Brian",96.0,"Luke",95.3],
- ["Netherlands",9,"Drew",99.5,"Brian",99.3],
  ["New Zealand",9,"Drew",97.4,"Brian",96.8],
- ["Spain",9,"Gabe",98.3,"Brian",95.0],
+ ["Argentina",9,"Gabe",92.6,"Drew",91.3],
  ["Belgium",8,"Brian",98.8,"Zach",98.1],
- ["Indonesia",8,"Brian",93.0,"Zach",87.5]
+ ["Greece",8,"Drew",98.5,"Gabe",96.0]
 ];
 const TERR=[
- ["United States & Canada",211,96.4,"Brian",97.9,"Drew",96.3,44,-100,0],
- ["Mexico & Central America",24,93.7,"Gabe",96.6,"Brian",95.5,21,-103,0],
+ ["United States & Canada",223,96.4,"Brian",97.9,"Drew",96.4,44,-100,0],
+ ["Mexico & Central America",26,94.1,"Gabe",96.9,"Brian",95.9,21,-103,0],
  ["Caribbean",11,97.6,"Zach",98.5,"Luke",98.5,18.5,-70,1],
- ["Andes & Northern S. America",35,87.1,"Gabe",89.6,"Brian",88.3,-8,-74,0],
- ["Brazil & Southern Cone",24,87.8,"Gabe",93.4,"Brian",89.0,-20,-50,0],
- ["British Isles",40,97.5,"Brian",98.4,"Drew",97.7,54.5,-3,1],
- ["Nordics",21,95.8,"Drew",97.9,"Brian",97.2,61.5,16,1],
- ["France & Low Countries",44,96.1,"Gabe",97.9,"Brett",96.5,47.5,2,1],
+ ["Andes & Northern S. America",40,87.8,"Gabe",89.9,"Brian",89.0,-8,-74,0],
+ ["Brazil & Southern Cone",29,87.8,"Gabe",93.2,"Brian",89.2,-20,-50,0],
+ ["British Isles",44,97.5,"Brian",98.4,"Drew",97.7,54.5,-3,1],
+ ["Nordics",23,95.5,"Drew",98.0,"Brian",97.0,61.5,16,1],
+ ["France & Low Countries",47,96.1,"Gabe",97.9,"Drew",96.5,47.5,2,1],
  ["Germany & the Alps",35,95.7,"Gabe",97.5,"Brian",96.7,50,11.5,1],
- ["Iberia",16,95.7,"Gabe",98.5,"Drew",98.1,40,-4,1],
- ["Italy",22,96.8,"Gabe",98.9,"Brian",97.5,42.8,12.8,1],
- ["Central Europe",14,94.1,"Brian",96.9,"Gabe",96.0,50.8,19.5,1],
- ["The Balkans & Greece",17,94.9,"Drew",97.6,"Gabe",97.1,42.6,22.5,1],
+ ["Iberia",17,95.6,"Gabe",98.4,"Drew",98.0,40,-4,1],
+ ["Italy",25,96.4,"Gabe",99.0,"Brian",97.4,42.8,12.8,1],
+ ["Central Europe",17,94.1,"Brian",96.7,"Gabe",96.1,50.8,19.5,1],
+ ["The Balkans & Greece",18,94.9,"Drew",97.8,"Gabe",97.0,42.6,22.5,1],
  ["Baltics & Belarus",6,90.9,"Drew",96.5,"Brian",95.3,55.8,26,1],
  ["Ukraine & Moldova",12,90.7,"Brian",95.1,"Zach",94.0,48.8,31.5,1],
  ["Caucasus",5,85.6,"Gabe",96.0,"Zach",91.8,0,0,0],
- ["Russia",20,77.9,"Gabe",81.2,"Brian",79.7,62,95,0],
- ["Turkey & the Levant",18,96.0,"Zach",97.0,"Gabe",96.7,38,35,1],
+ ["Russia",21,78.2,"Gabe",81.1,"Brian",80.0,62,95,0],
+ ["Turkey & the Levant",20,96.0,"Zach",97.2,"Brian",96.8,38,35,1],
  ["Gulf, Iraq & Iran",23,92.4,"Brian",94.4,"Zach",93.4,27,50,0],
- ["North Africa",22,93.7,"Brian",95.5,"Drew",94.2,26,15,0],
- ["West Africa",22,85.7,"Gabe",91.4,"Brian",87.6,12,-4,0],
- ["Central Africa",12,77.1,"Gabe",86.3,"Luke",75.0,-1,18,0],
- ["East Africa & the Horn",28,85.0,"Gabe",88.9,"Drew",88.4,3,40,0],
- ["Southern Africa",20,83.2,"Gabe",88.2,"Brian",84.5,-23,26,0],
- ["Central Asia",7,84.0,"Luke",88.0,"Brian",85.6,44.5,63,0],
- ["South Asia",43,88.6,"Brian",92.2,"Gabe",91.2,21,78,0],
- ["China & Mongolia",36,86.7,"Brian",87.7,"Gabe",87.5,41,95,0],
- ["Japan, Korea & Taiwan",41,95.3,"Brian",97.4,"Luke",95.9,37,141,0],
- ["Southeast Asia",29,89.8,"Brian",91.8,"Gabe",90.7,1,110,0],
- ["Australia & New Zealand",27,90.4,"Brian",94.0,"Zach",91.6,-26,134,0],
- ["Pacific Islands",10,65.0,"Brett",71.1,"Brian",71.1,-16,178,0]
+ ["North Africa",24,93.3,"Brian",94.8,"Drew",94.0,26,15,0],
+ ["West Africa",25,86.0,"Gabe",91.2,"Brian",88.4,12,-4,0],
+ ["Central Africa",13,77.8,"Gabe",85.8,"Brett",75.8,-1,18,0],
+ ["East Africa & the Horn",29,85.1,"Drew",88.6,"Gabe",88.2,3,40,0],
+ ["Southern Africa",24,84.8,"Gabe",88.9,"Brian",86.3,-23,26,0],
+ ["Central Asia",8,84.0,"Danny",89.8,"Luke",87.4,44.5,63,0],
+ ["South Asia",51,89.2,"Brian",92.6,"Gabe",91.6,21,78,0],
+ ["China & Mongolia",37,86.5,"Brian",87.4,"Drew",87.2,41,95,0],
+ ["Japan, Korea & Taiwan",44,95.1,"Brian",97.0,"Luke",95.6,37,141,0],
+ ["Southeast Asia",33,89.9,"Brian",91.7,"Gabe",90.4,1,110,0],
+ ["Australia & New Zealand",28,90.6,"Brian",94.2,"Zach",91.6,-26,134,0],
+ ["Pacific Islands",11,65.0,"Brian",72.2,"Brett",69.8,-16,178,0]
 ];
 /* ---- GENERATED:END ---- */
 
